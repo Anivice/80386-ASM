@@ -1,5 +1,7 @@
 # Assembly
 
+## Assembly Overview
+
 In Bash, the `ls` command is used to list all files and directories in
 the current directory. Additionally, we can append a parameter,
 such as `/`, to list all files and directories under the root directory (`/`).
@@ -23,41 +25,52 @@ In this example:
 Assembly language, like Bash commands, allows precise control over operations,
 albeit at a much lower level.
 
-The use of the `0x` prefix to indicate hexadecimal numbers was likely
-popularized by Unix. The development of Unix and its heavy reliance on the
-C programming language helped establish the `0x` prefix as a standard.
-Many Unix tools and utilities were written in C, further spreading the
-convention through their widespread use.
+> The use of the `0x` prefix to indicate hexadecimal numbers was likely
+> popularized by Unix. The development of Unix and its heavy reliance on the
+> C programming language helped establish the `0x` prefix as a standard.
+> Many Unix tools and utilities were written in C, further spreading the
+> convention through their widespread use.
 
-Ensure that `nasm`, `cmake`, `make`, and `vim` are installed.
-You can install them using the following commands, based on your Linux distribution:
+## Compiler (Assembler) and Corresponding Tools Installation
+
+Ensure that `nasm`, `cmake`, `make`, `vim`, `gcc`, and `gdb` are installed.
+You can install them using the following commands,
+based on your Linux distribution:
 
 ### Debian (and derivatives, such as Ubuntu):
 ```bash
 sudo apt update
-sudo apt install nasm cmake make vim
+sudo apt install nasm cmake make vim gcc gdb
 ```
 
 ### Fedora:
 ```bash
-sudo dnf install nasm cmake make vim
+sudo dnf install nasm cmake make vim gcc gdb
 ```
 
 ### Arch Linux (and derivatives, such as Manjaro):
 ```bash
-sudo pacman -S nasm cmake make vim
+sudo pacman -S nasm cmake make vim gcc gdb
 ```
 
 ### openSUSE:
 ```bash
-sudo zypper install nasm cmake make vim
+sudo zypper install nasm cmake make vim gcc gdb
 ```
 
-These commands will ensure that
-`nasm` (Netwide Assembler),
-`cmake` (build tool),
-`make` (build automation tool),
-and `vim` (text editor) are installed on your system.
+These commands will ensure that:
+
+- `nasm` (Netwide Assembler),
+- `cmake` (build tool),
+- `make` (build automation tool),
+- `vim` (text editor),
+- `gcc` (GNU Compiler Collection),
+- `gdb` (GNU Debugger)
+
+are installed on your system.
+
+
+## Compilation (Assembling) and Disassembling
 
 [The above assembly code](#assembly-code) can be compiled using the following commands:
 
@@ -93,6 +106,6 @@ The output will display the disassembled instructions, similar to this:
 
 ---
 
-[Chapter 3]()
+[Chapter 3](qemu.md)
 
 [Back To Main Page](../README.md)

@@ -49,10 +49,19 @@ Detailed CMake instructions are beyond its scope.
 
   <!-- qemu-emulator.cmake -->
   <tr>
-    <td>qemu-emulator.cmake</td>
+    <td rowspan="2">qemu-emulator.cmake</td>
     <td><code>add_qemu_emulation_target(TARGET_NAME, BOOT_SECTOR_FILE_NAME)</code></td>
     <td>
       Links a boot sector to QEMU for emulation.<br>
+      <b>TARGET_NAME</b>: Name used by the build system.<br>
+      <b>BOOT_SECTOR_FILE_NAME</b>: Name of the boot sector file.
+    </td>
+  </tr>
+
+  <tr>
+    <td><code>add_qemu_debug_target(TARGET_NAME, BOOT_SECTOR_FILE_NAME)</code></td>
+    <td>
+      Links a boot sector to QEMU for emulation <b><i>with GDB support</i></b>.<br>
       <b>TARGET_NAME</b>: Name used by the build system.<br>
       <b>BOOT_SECTOR_FILE_NAME</b>: Name of the boot sector file.
     </td>
@@ -70,3 +79,6 @@ Detailed CMake instructions are beyond its scope.
 ### [Chapter 2: Assembly and NASM](documentation/assembly_and_nasm.md)
 > Assembly language operates like Bash commands, enabling low-level
 > control of operations; tools like NASM help compile and disassemble code.
+
+### [Chapter 3: QEMU Emulation and Debugging](documentation/qemu.md)
+>

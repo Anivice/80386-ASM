@@ -12,3 +12,13 @@ function(add_qemu_emulation_target
             COMMENT "Starting emulation for ${BOOT_SECTOR_FILE_NAME}"
     )
 endfunction()
+
+function(add_qemu_debug_target
+        TARGET_NAME
+        BOOT_SECTOR_FILE_NAME)
+    add_custom_target(${TARGET_NAME}
+            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
+            COMMAND ${QEMU_EXECUTABLE} -drive format=raw,file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME} -m 32M -s -S -monitor stdio -d int
+            COMMENT "Starting debug emulation for ${BOOT_SECTOR_FILE_NAME}. Emulation will start once gdb connects"
+    )
+endfunction()
