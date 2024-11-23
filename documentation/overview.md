@@ -1,7 +1,5 @@
 # Overview
 
----
-
 ## Intel 8086
 
 The Intel 8086, introduced in 1978, was Intel's first 16-bit processor. 
@@ -83,6 +81,6 @@ $$\text{SegmentAddress}:\text{Offset}$$
 
 ---
 
-[Chapter 2]()
+[Chapter 2](assembly_and_nasm.md)
 
 [Back To Main Page](../README.md)

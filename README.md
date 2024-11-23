@@ -62,4 +62,5 @@ Detailed CMake instructions are beyond its scope.
 ---
 
 ## Table of Contents
-[Chapter 1: Overview](documentation/overview.md)
+- [Chapter 1: Overview](documentation/overview.md)
+- [Chapter 2: Assembly and NASM](documentation/assembly_and_nasm.md)

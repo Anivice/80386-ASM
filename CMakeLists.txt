@@ -6,3 +6,6 @@ include(cmake_modules/qemu-emulator.cmake)
 
 add_singular_binary_target(example example.bin nasm_setup/main.asm)
 add_qemu_emulation_target(boot_example example.bin)
+
+add_singular_binary_target(chapter2 chapter2.bin src_for_doc/chapter2.asm)
+
