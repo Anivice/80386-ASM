@@ -1,12 +1,19 @@
 # 80386 Assembly Guide
 
-Welcome to the 80386 assembly programming guide! This resource provides a comprehensive walkthrough for writing functional 80386 code in both Real Mode and Protected Mode.
+Welcome to the 80386 assembly programming guide!
+This resource provides a comprehensive walkthrough for writing functional
+80386 code in both Real Mode and Protected Mode.
+
+---
 
 ## Why Use CMake?
 
-This project uses CMake as its default build system. While Makefiles can be simpler, CMake is preferred due to its seamless compatibility with CLion, which has limited support for Makefiles.
+This project uses CMake as its default build system.
+While Makefiles can be simpler, CMake is preferred due to its
+seamless compatibility with CLion, which has limited support for Makefiles.
 
-**Note:** This guide primarily focuses on 80386 assembly programming. Detailed CMake instructions are beyond its scope.
+**Note:** This guide primarily focuses on 80386 assembly programming.
+Detailed CMake instructions are beyond its scope.
 
 ## CMake Modules Overview
 
@@ -52,4 +59,7 @@ This project uses CMake as its default build system. While Makefiles can be simp
   </tr>
 </table>
 
+---
 
+## Table of Contents
+[Chapter 1: Overview](documentation/overview.md)
