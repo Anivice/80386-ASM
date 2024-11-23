@@ -61,9 +61,7 @@ So, how much memory can the 8086 access in total?
 The answer is from `0x00000` to `0xFFFFF`, giving the 8086 a 20-bit address bus.
 
 The physical address is calculated using the following formula:
-$$
-    \text{PhysicalAddress} = (\text{SegmentRegister} \ll 4) + \text{offset}
-$$
+$$\text{PhysicalAddress} = (\text{SegmentRegister} \ll 4) + \text{offset}$$
 
 In this formula, the segment register is shifted 4 bits to the left 
 (equivalent to multiplying by 10 in base-16 or 16 in base-10), 
@@ -79,9 +77,7 @@ with each segment spanning $64 \text{ KB}$.
 
 The standard notation for memory addressing in the 8086 architecture is
 represented as follows:
-$$
-    \text{SegmentAddress}:\text{Offset}
-$$
+$$\text{SegmentAddress}:\text{Offset}$$
 
 ---
 
