@@ -94,12 +94,9 @@ Additionally, the video below demonstrates the startup
 and shutdown processes of a hard disk:
 
 <div style="text-align: center;">
-    <video src="./HDD_Startup_and_Shutdown.mp4">HDD Startup and Shutdown</video>
-</div>
-<div style="text-align: center;">
-    <a href="https://www.youtube.com/watch?v=TqV8AO57LQc" target="_blank">
+    <iframe src="https://www.youtube.com/embed/TqV8AO57LQc?autoplay=1&loop=1&mute=1" width="800" height="450">
         HDD Startup and Shutdown
-    </a>
+    </iframe>
 </div>
 
 ## Cylinder 0, Head 0, Sector 1
