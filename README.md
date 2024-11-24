@@ -72,13 +72,13 @@ Detailed CMake instructions are beyond its scope.
 
 ## Table of Contents
 
-### [Chapter 1: Overview](documentation/overview.md)
+### [Chapter 1: Overview](documentation/1_overview.md)
 > The Intel 8086, a 16-bit processor, introduced segmentation to access 1 MB
 > memory using registers and offsets efficiently.
 
-### [Chapter 2: Assembly and NASM](documentation/assembly_and_nasm.md)
+### [Chapter 2: Assembly and NASM](documentation/2_assembly_and_nasm.md)
 > Assembly language operates like Bash commands, enabling low-level
 > control of operations; tools like NASM help compile and disassemble code.
 
-### [Chapter 3: QEMU Emulation and Debugging](documentation/qemu.md)
+### [Chapter 3: QEMU Emulation and Debugging](documentation/3_qemu.md)
 >

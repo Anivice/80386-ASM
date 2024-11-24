@@ -9,3 +9,6 @@ add_qemu_emulation_target(boot_example example.bin)
 
 add_singular_binary_target(chapter2 chapter2.bin src_for_doc/chapter2.asm)
 
+add_singular_binary_target(chapter3 chapter3.bin src_for_doc/chapter3.asm)
+add_qemu_emulation_target(boot_chapter3 chapter3.bin)
+add_qemu_debug_target(debug_chapter3 chapter3.bin)
