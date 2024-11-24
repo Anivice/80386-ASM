@@ -229,7 +229,40 @@ line to clarify its function:
 
 ### Debug
 
+Debugging in 16-bit real mode with QEMU can be challenging. Fortunately, there are automated tools specifically
+designed to simplify this process.
 
+```bash
+  # Make sure you are at the root of the project tree and launched QEMU
+  cd gdb
+  ./debug_in_real_mode.sh
+```
+
+```bash
+    # disassemble
+    disassemble [Starting Addr], +[Length]
+    disassemble [Starting Addr], [End Addr]
+    
+    # step over
+    stepi
+    
+    # set break at address
+    break *[Addr]
+    
+    # continue after break
+    continue
+    
+    # show registers
+    info registers
+    
+    # show memory
+    # Example, show 0x7C00 in 16-bit hexadecimal format
+    #     10: Number of 16-bit words to display (10 = 10 words = 20 bytes).
+    #     h: Interpret as halfword (16-bit).
+    #     x: Display in hexadecimal format.
+    #     0x7C00: The starting address to examine.
+    x/10hx 0x7C00
+```
 
 ---
 

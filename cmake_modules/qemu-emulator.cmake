@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.29)
 
 include(${CMAKE_CURRENT_LIST_DIR}/check_for_program_availability.cmake)
 check_for_program_availability(QEMU_EXECUTABLE qemu-system-i386)
+check_for_program_availability(GDB_EXECUTABLE gdb)
 
 function(add_qemu_emulation_target
         TARGET_NAME
