@@ -81,4 +81,5 @@ Detailed CMake instructions are beyond its scope.
 > control of operations; tools like NASM help compile and disassemble code.
 
 ### [Chapter 3: QEMU Emulation and Debugging](documentation/3_qemu.md)
->
+> Debugging 16-bit real mode with QEMU is challenging, but tools automate the process;
+> GDB facilitates memory inspection, disassembly, and breakpoints.
