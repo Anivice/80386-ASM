@@ -94,13 +94,6 @@ Additionally, the video below demonstrates the startup
 and shutdown processes of a hard disk:
 
 <div style="text-align: center;">
-  <video width="800" height="450" controls>
-    <source src="https://github.com/user-attachments/assets/b7b354d8-a4c0-45bf-abf1-2f7b0166da79" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</div>
-
-<div style="text-align: center;">
   <a href="https://www.youtube.com/watch?v=TqV8AO57LQc" target="_blank">
     HDD Startup and Shutdown
   </a>
