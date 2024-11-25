@@ -262,10 +262,15 @@ designed to simplify this process.
     #     x: Display in hexadecimal format.
     #     0x7C00: The starting address to examine.
     x/10hx 0x7C00
+    
+    # Show context System Context: Includes the stack, data segment (DS:SI),
+    # extra segment (ES:DI), general-purpose registers, flags, 
+    # and queued instructions.
+    context
 ```
 
 ---
 
-[Chapter 4]()
+[Chapter 3.1](./3.1_assembly_example_movsb.md)
 
 [Back To Main Page](../README.md)

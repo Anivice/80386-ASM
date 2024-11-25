@@ -83,3 +83,6 @@ Detailed CMake instructions are beyond its scope.
 ### [Chapter 3: QEMU Emulation and Debugging](documentation/3_qemu.md)
 > Debugging 16-bit real mode with QEMU is challenging, but tools automate the process;
 > GDB facilitates memory inspection, disassembly, and breakpoints.
+- ### [Chapter 3.1: Assembly Example `movsb`](documentation/3.1_assembly_example_movsb.md)
+  > The `movsb` instruction simplifies copying blocks of data in memory,
+  > automating transfers with `rep` and registers like `DS:SI` and `ES:DI`.
