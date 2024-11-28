@@ -86,3 +86,5 @@ Detailed CMake instructions are beyond its scope.
 - ### [Chapter 3.1: Assembly Example `movsb`](documentation/3.1_assembly_example_movsb.md)
   > The `movsb` instruction simplifies copying blocks of data in memory,
   > automating transfers with `rep` and registers like `DS:SI` and `ES:DI`.
+- ### [Chapter 3.2: Conditional Jump](documentation/3.2_conditional_jump.md)
+  > Conditional jumps in assembly based on flags for loop control.
