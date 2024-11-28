@@ -9,14 +9,13 @@ add_qemu_emulation_target(boot_example example.bin)
 
 add_singular_binary_target(chapter2 chapter2.bin src_for_doc/chapter2.asm)
 
-add_singular_binary_target(chapter3 chapter3.bin src_for_doc/chapter3.asm)
-add_qemu_emulation_target(boot_chapter3 chapter3.bin)
-add_qemu_debug_target(debug_chapter3 chapter3.bin)
+function(add_chapter_src CHAPTER)
+    add_singular_binary_target(${CHAPTER} ${CHAPTER}.bin src_for_doc/${CHAPTER}.asm)
+    add_qemu_emulation_target(boot_${CHAPTER} ${CHAPTER}.bin)
+    add_qemu_debug_target(debug_${CHAPTER} ${CHAPTER}.bin)
+endfunction()
 
-add_singular_binary_target(print print.bin src_for_doc/Examples/print.asm)
-add_qemu_emulation_target(boot_print print.bin)
-add_qemu_debug_target(debug_print print.bin)
-
-add_singular_binary_target(chapter4 chapter4.bin src_for_doc/chapter4.asm)
-add_qemu_emulation_target(boot_chapter4 chapter4.bin)
-add_qemu_debug_target(debug_chapter4 chapter4.bin)
+add_chapter_src(chapter3)
+add_chapter_src(chapter3.1)
+add_chapter_src(chapter3.2)
+add_chapter_src(chapter3.3)
