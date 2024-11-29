@@ -1,8 +1,27 @@
-# 80386 Assembly Guide
+# Intel 80386 Assembly Guide
 
-Welcome to the 80386 assembly programming guide!
+Welcome to the Intel 80386 assembly programming guide!
 This resource provides a comprehensive walkthrough for writing functional
-80386 code in both Real Mode and Protected Mode.
+Intel 80386 code in both Real Mode and Protected Mode.
+
+## Table of Contents
+
+### [Chapter 1: Overview](documentation/1_overview.md)
+> The Intel 8086 is a 16-bit processor, introduced segmentation to access up to 1 MB of memory.
+
+### [Chapter 2: Assembly and NASM](documentation/2_assembly_and_nasm.md)
+> Assembly language; use NASM to compile and disassemble code.
+
+### [Chapter 3: QEMU Emulation and Debugging](documentation/3_qemu.md)
+> Debugging 16-bit real mode with QEMU+GDB;
+- ### [Chapter 3.1: Assembly Example `movsb`](documentation/3.1_assembly_example_movsb.md)
+  > The `movsb` instruction simplifies copying blocks of data in memory,
+- ### [Chapter 3.2: Conditional Jump](documentation/3.2_conditional_jump.md)
+  > Conditional jumps in assembly based on flags for loop control.
+- ### [Chapter 3.3: Stack and Function](documentation/3.3_stack_and_function.md)
+  > The 8086 stack and how to write a function in assembly preserving CPU state before calling.
+- ### [Chapter 3.4: Memory Addressing (And Some Other Notes)](documentation/3.4_memory_addressing.md)
+  > Intel 80386 real mode memory addressing.
 
 ---
 
@@ -67,32 +86,3 @@ Detailed CMake instructions are beyond its scope.
     </td>
   </tr>
 </table>
-
----
-
-## Table of Contents
-
-### [Chapter 1: Overview](documentation/1_overview.md)
-> The Intel 8086, a 16-bit processor, introduced segmentation to access 1 MB
-> memory using registers and offsets efficiently.
-
-### [Chapter 2: Assembly and NASM](documentation/2_assembly_and_nasm.md)
-> Assembly language operates like Bash commands, enabling low-level
-> control of operations; tools like NASM help compile and disassemble code.
-
-### [Chapter 3: QEMU Emulation and Debugging](documentation/3_qemu.md)
-> Debugging 16-bit real mode with QEMU is challenging, but tools automate the process;
-> GDB facilitates memory inspection, disassembly, and breakpoints.
-- ### [Chapter 3.1: Assembly Example `movsb`](documentation/3.1_assembly_example_movsb.md)
-  > The `movsb` instruction simplifies copying blocks of data in memory,
-  > automating transfers with `rep` and registers like `DS:SI` and `ES:DI`.
-- ### [Chapter 3.2: Conditional Jump](documentation/3.2_conditional_jump.md)
-  > Conditional jumps in assembly based on flags for loop control.
-- ### [Chapter 3.3: Stack and Function](documentation/3.3_stack_and_function.md)
-  > The 8086 stack operates as a LIFO data structure, utilizing `SS` and `SP`.
-  > Key operations like `push`, `pop`, `call`, and `ret` interact with the stack
-  > to manage data and function calls efficiently, ensuring CPU state preservation
-  > and seamless execution.
-- ### [Chapter 3.4: Memory Addressing (And Some Other Notes)](documentation/3.4_memory_addressing.md)
-  > 80386 real mode supports direct, indirect, indexed, base+index,
-  > displacement addressing, and segment-limited memory.
