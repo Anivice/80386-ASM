@@ -88,3 +88,11 @@ Detailed CMake instructions are beyond its scope.
   > automating transfers with `rep` and registers like `DS:SI` and `ES:DI`.
 - ### [Chapter 3.2: Conditional Jump](documentation/3.2_conditional_jump.md)
   > Conditional jumps in assembly based on flags for loop control.
+- ### [Chapter 3.3: Stack and Function](documentation/3.3_stack_and_function.md)
+  > The 8086 stack operates as a LIFO data structure, utilizing `SS` and `SP`.
+  > Key operations like `push`, `pop`, `call`, and `ret` interact with the stack
+  > to manage data and function calls efficiently, ensuring CPU state preservation
+  > and seamless execution.
+- ### [Chapter 3.4: Memory Addressing (And Some Other Notes)](documentation/3.4_memory_addressing.md)
+  > 80386 real mode supports direct, indirect, indexed, base+index,
+  > displacement addressing, and segment-limited memory.
