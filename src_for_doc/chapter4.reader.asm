@@ -56,7 +56,7 @@ start:
     mov     si,     _buffer
 
     ; 2. Read
-    mov     cx,     256         ; the I/O port is 16-bit width, meaning 512 bytes is 256 words
+    mov     cx,     256                 ; the I/O port is 16-bit width, meaning 512 bytes is 256 words
     mov     dx,     IO_PORT
 
     .iteration_loop_read_word_from_disk:
