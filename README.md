@@ -1,8 +1,9 @@
-# Intel 80386 Assembly Guide
+# Dumb Shit Guide to Intel 80386 Assembly
 
-Welcome to the Intel 80386 assembly programming guide!
+Welcome to Dumb Shit Guide Intel 80386 assembly!
 This resource provides a comprehensive walkthrough for writing functional
-Intel 80386 code in both Real Mode and Protected Mode.
+Intel 80386 code in both Real Mode and Protected Mode (Seriously, it really is
+a tutorial, I'm not even kidding here).
 
 ## Table of Contents
 
@@ -24,6 +25,25 @@ Intel 80386 code in both Real Mode and Protected Mode.
   > Intel 80386 real mode memory addressing.
 
 ---
+
+## Why 80386 When RISCV64, AARCH64, and AMD64(x86_64) are the Dominant Architecture Now?
+Yes, it may seem pointless.
+However, 80386 is, well, not the simplest architecture to work with, but does have the
+following edge compared to other architectures:
+1. **Abundant Resource:** Intel 80386 is the most used architecture in the PC market ever,
+                          making it well documented and well-supported by both hardware vendors
+                          and software developers, with countless well-tested emulators and
+                          real hardware debuggers to choose from.
+                          (there are even FPGA projects to reimplement the good old 80386)
+
+2. **Rather Flat Learning Curve:** Intel 80386 is significantly easier than AMD64 architecture,
+                                   and support ended with `i686`, Intel 80686, the most advanced
+                                   32-bit architecture used by Intel Pentium Pro released in 1995
+                                   before Intel fully commited to 64bit architecture starting from
+                                   Intel Core series.
+                                   Intel 80386 is simpler and easier than advanced architectures
+                                   with instructions dealing with things like AES256 that are not
+                                   exactly related to system programming.
 
 ## Why Use CMake?
 
@@ -56,13 +76,23 @@ Detailed CMake instructions are beyond its scope.
 
   <!-- add_binary_target.cmake -->
   <tr>
-    <td>add_binary_target.cmake</td>
+    <td rowspan="2">add_binary_target.cmake</td>
     <td><code>add_singular_binary_target(TARGET_NAME, OUTPUT_FILENAME, INPUT_FILENAME)</code></td>
     <td>
       Compiles a single file into a pure binary.<br>
       <b>TARGET_NAME</b>: Name used by the build system.<br>
       <b>OUTPUT_FILENAME</b>: Name of the output binary file.<br>
       <b>INPUT_FILENAME</b>: Source file for the binary.
+    </td>
+  </tr>
+  <tr>
+    <td><code>concatenate_files(OUTPUT_FILENAME, FILE1, [FILE2...])</code></td>
+    <td>
+      Concatenate files into one, with 512 block alignment configuration for disk I/O support.<br>
+      The target name used by the build system is automatically generated,
+      named as <code>concatenate_file_${OUTPUT_FILENAME]</code>.<br>
+      <b>OUTPUT_FILENAME</b>: Name of the output file.<br>
+      <b>FILE1, [FILE2...]</b>: Name of the input file that wished to be concatenated.<br>
     </td>
   </tr>
 
