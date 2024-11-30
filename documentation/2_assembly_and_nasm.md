@@ -47,7 +47,7 @@ In the above example, we have:
 > an off-the-record-and-non-standard indication for hexadecimal numbers in the long run.
 > However, this is not mandatory.
 > Apparently, appending an 'H' at the end of the number without `0x` prefix does the same job,
-> which is what the world renounced genius and billionaire Bill Gates also promoted before,
+> which is what the world renowned genius and billionaire Bill Gates also promoted,
 > though nobody is really using this indication anymore at this day of age and anyone
 > who still uses it is often considered working on a CRT screen and a setup with active
 > floppy disks and tape readers in their parents' garage with slides shoes for all four
