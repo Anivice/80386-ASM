@@ -1,6 +1,6 @@
-# Dumb Shit Guide to Intel 80386 Assembly
+# Fool's Guide to Intel 80386 Assembly
 
-Welcome to Dumb Shit Guide Intel 80386 assembly!
+Welcome to Fool's Guide to Intel 80386 assembly!
 This resource provides a comprehensive walkthrough for writing functional
 Intel 80386 code in both Real Mode and Protected Mode (Seriously, it really is
 a tutorial, I'm not even kidding here).
