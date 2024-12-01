@@ -16,12 +16,15 @@ IO_LBA28_24_27_W_4_CTRL     equ 0x1F6
 IO_REQUEST_AND_STATE        equ 0x1F7
 
 IO_READ                     equ 0x20
+DRQ                         equ 0x08
+
+USER_PROGRAM_SECTOR_SZ      equ 3
 
 start:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; First things first, we have to load our program into the memory
     ; Step 1: Set number of the blocks/sectors pending to read
-    mov         al,                     0x01                            ; 1 block/sector
+    mov         al,                     USER_PROGRAM_SECTOR_SZ
     mov         dx,                     IO_BLOCK_COUNT                  ; set out port
     out         dx,                     al
 
@@ -49,9 +52,10 @@ start:
     ; Step 4: Wait for the operation to finish
     .wait_for_disk_ops:
         in          al,                 dx
-        and         al,                 10001000B
-        cmp         al,                 00001000B
-        jne         .wait_for_disk_ops
+;        and         al,                 10001000B
+;        cmp         al,                 00001000B
+        test        al,                 DRQ
+        jz          .wait_for_disk_ops
 
     ; Step 5: Read the Data from Buffer
     ; 1. Setup ES:DI
@@ -60,13 +64,15 @@ start:
     mov         di,                     _buffer - SYS_STARTINGPOINT
 
     ; 2. Read
-    mov         cx,                     256                             ; the I/O port is 16-bit width, meaning 512 bytes is 256 words
+    mov         cx,                     256 * USER_PROGRAM_SECTOR_SZ    ; the I/O port is 16-bit width, meaning 512 bytes is 256 words
     mov         dx,                     IO_PORT
 
     .iteration_loop_read_word_from_disk:
         in          ax,                 dx
         mov word    [es:di],            ax
         add         di,                 2                               ; 2 bytes, 1 word
+
+        in          al,                 IO_ERR_STATE
 
         ; loop logic is similar to do { ... } while (--cx != 0)
         loop .iteration_loop_read_word_from_disk

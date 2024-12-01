@@ -15,7 +15,7 @@ function(add_singular_binary_target
     # Generate binary file from assembly source
     add_custom_command(
             OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_FILENAME}
-            COMMAND ${NASM_EXECUTABLE} -f bin ${CMAKE_CURRENT_SOURCE_DIR}/${INPUT_FILENAME} -o ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_FILENAME}
+            COMMAND ${NASM_EXECUTABLE} -O0 -X gnu -f bin ${CMAKE_CURRENT_SOURCE_DIR}/${INPUT_FILENAME} -o ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_FILENAME}
             DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${INPUT_FILENAME}
             COMMENT "Assembling ${INPUT_FILENAME} with NASM (Singular mode)"
     )
