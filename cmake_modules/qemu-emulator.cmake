@@ -20,7 +20,7 @@ function(add_qemu_debug_target
         BOOT_SECTOR_FILE_NAME)
     add_custom_target(${TARGET_NAME}
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
-            COMMAND ${QEMU_EXECUTABLE} -drive format=raw,file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME} -m 32M -s -S -monitor stdio -d int
+            COMMAND ${QEMU_EXECUTABLE} -drive format=raw,file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME} -m 32M -s -S -monitor stdio -d int,in_asm,cpu,exec
             USES_TERMINAL
             COMMENT "Starting debug emulation for ${BOOT_SECTOR_FILE_NAME}. Emulation will start once gdb connects"
     )

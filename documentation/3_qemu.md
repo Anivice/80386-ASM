@@ -300,4 +300,5 @@ Unfortunately for them, fortunately for us, there are automated tools specifical
 
 [Chapter 3.1](./3.1_assembly_example_movsb.md)
 
-[Back To Main Page](../README.md)
+[Back to the Main Page](../README.md)
+

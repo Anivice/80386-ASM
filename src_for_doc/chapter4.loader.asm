@@ -1,117 +1,139 @@
 [bits 16]
 [org 0x7C00]
 
-jmp start
+SYS_STARTINGPOINT           equ 0x7C00
 
-SYS_STARTINGPOINT       equ 0x7C00
+; The above is the same as before, so I won't do very complicated explanation here
 
-IO_PORT                 equ 0x1F0
-IO_ERR_STATE            equ 0x1F1
-IO_BLOCK_COUNT          equ 0x1F2
-IO_LBA28_0_7            equ 0x1F3
-IO_LBA28_8_15           equ 0x1F4
-IO_LBA28_16_23          equ 0x1F5
-IO_LBA28_24_27_W_4_CTRL equ 0x1F6
-IO_REQUEST_AND_STATE    equ 0x1F7
+; refer to the documentation for detailed explanation of the following marcos
+IO_PORT                     equ 0x1F0
+IO_ERR_STATE                equ 0x1F1
+IO_BLOCK_COUNT              equ 0x1F2
+IO_LBA28_0_7                equ 0x1F3
+IO_LBA28_8_15               equ 0x1F4
+IO_LBA28_16_23              equ 0x1F5
+IO_LBA28_24_27_W_4_CTRL     equ 0x1F6
+IO_REQUEST_AND_STATE        equ 0x1F7
 
-IO_READ                 equ 0x20
+IO_READ                     equ 0x20
 
 start:
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; First things first, we have to load our program into the memory
     ; Step 1: Set number of the blocks/sectors pending to read
-    mov     al,     0x01                            ; 1 block/sector
-    mov     dx,     IO_BLOCK_COUNT                  ; set out port
-    out     dx,     al
+    mov         al,                     0x01                            ; 1 block/sector
+    mov         dx,                     IO_BLOCK_COUNT                  ; set out port
+    out         dx,                     al
 
     ; Step 2 : Set the start block of LBA28
-    mov     al,     0x01                            ; second block, LBA starts from 0
-    mov     dx,     IO_LBA28_0_7
-    out     dx,     al
+    mov         al,                     0x01                            ; second block, LBA starts from 0
+    mov         dx,                     IO_LBA28_0_7
+    out         dx,                     al
 
-    xor     al,     al
-    mov     dx,     IO_LBA28_8_15
-    out     dx,     al
+    xor         al,                     al
+    mov         dx,                     IO_LBA28_8_15
+    out         dx,                     al
 
-    mov     dx,     IO_LBA28_16_23
-    out     dx,     al
+    mov         dx,                     IO_LBA28_16_23
+    out         dx,                     al
 
-    mov     al,     11100000B                       ; 1 [LBA=1/CHS=0] 1 [IDE Master=1/IDE Slave=0] 0 0 0 0
-    mov     dx,     IO_LBA28_24_27_W_4_CTRL
-    out     dx,     al
+    mov         al,                     11100000B                       ; 1 [LBA=1/CHS=0] 1 [IDE Master=1/IDE Slave=0] 0 0 0 0
+    mov         dx,                     IO_LBA28_24_27_W_4_CTRL
+    out         dx,                     al
 
     ; Step 3: Request ICH I/O Read
-    mov     dx,     IO_REQUEST_AND_STATE
-    mov     al,     IO_READ
-    out     dx,     al
+    mov         dx,                     IO_REQUEST_AND_STATE
+    mov         al,                     IO_READ
+    out         dx,                     al
 
     ; Step 4: Wait for the operation to finish
     .wait_for_disk_ops:
-        in          al,         dx
-        and         al,         10001000B
-        cmp         al,         00001000B
-        jne     .wait_for_disk_ops
+        in          al,                 dx
+        and         al,                 10001000B
+        cmp         al,                 00001000B
+        jne         .wait_for_disk_ops
 
     ; Step 5: Read the Data from Buffer
     ; 1. Setup ES:DI
-    mov     ax,     0x07C0
-    mov     es,     ax
-    mov     di,     _buffer - SYS_STARTINGPOINT
+    mov         ax,                     0x07C0
+    mov         es,                     ax
+    mov         di,                     _buffer - SYS_STARTINGPOINT
 
     ; 2. Read
-    mov     cx,     256                             ; the I/O port is 16-bit width, meaning 512 bytes is 256 words
-    mov     dx,     IO_PORT
+    mov         cx,                     256                             ; the I/O port is 16-bit width, meaning 512 bytes is 256 words
+    mov         dx,                     IO_PORT
 
     .iteration_loop_read_word_from_disk:
-        in          ax,         dx
-        mov word    [es:di],    ax
-        add         di,         2                   ; 2 bytes, 1 word
+        in          ax,                 dx
+        mov word    [es:di],            ax
+        add         di,                 2                               ; 2 bytes, 1 word
 
         ; loop logic is similar to do { ... } while (--cx != 0)
         loop .iteration_loop_read_word_from_disk
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    mov         di,                 _buffer - SYS_STARTINGPOINT     ; reset the index to the starting point
+    mov         di,                     _buffer - SYS_STARTINGPOINT     ; reset the index to the starting point
 
     ; Now, we relocate the user program. The allocation is hardcoded for simplicity
     ; new_seg_addr = cur_seg + (cur_index + off_in_prog) >> 4
 
     ; set stack segmentation
-    mov word    ax,                 [es:di + 12]                    ; stack segmentation starting address
-    add         ax,                 di
-    shr         ax,                 4
-    add         ax,                 0x07C0
-    mov         ss,                 ax
+    mov word    ax,                     [es:di + 12]                    ; stack segmentation starting address
+    add         ax,                     di
+    shr         ax,                     4
+    add         ax,                     0x07C0
+    mov         ss,                     ax
 
-    mov word    ax,                 [es:di + 12]                    ; stack segmentation starting address
-    mov word    bx,                 [es:di + 14]                    ; stack segmentation end address
-    sub         bx,                 ax
-    mov         sp,                 bx
+    mov word    ax,                     [es:di + 12]                    ; stack segmentation starting address
+    mov word    bx,                     [es:di + 14]                    ; stack segmentation end address
+    sub         bx,                     ax
+    mov         sp,                     bx
 
     ; set up data segmentation
-    mov word    ax,                 [es:di + 4]                     ; data segmentation starting address
-    add         ax,                 di
-    shr         ax,                 4
-    add         ax,                 0x07C0
-    mov         ds,                 ax
-    xor         si,                 si
+    mov word    ax,                     [es:di + 4]                     ; data segmentation starting address
+    add         ax,                     di
+    shr         ax,                     4
+    add         ax,                     0x07C0
+    mov         ds,                     ax
+    xor         si,                     si
 
-    ; attempt to call _entry_point()
-    mov         bx,                 [es:di + 2]                     ; get entry point offset
-    mov         ax,                 [es:di + 8]                     ; get code segmentation starting address
-    add         bx,                 _buffer
-    add         bx,                 ax
-    call        bx
+    ; attempt to call _entry_point() with correct code segment (offset starts with 0x0000)
+    mov         bx,                     [es:di + 2]                     ; get entry point offset
+    mov         ax,                     [es:di + 8]                     ; get code segmentation starting address
+    add         ax,                     _buffer                         ; pending the current buffer segment
+    shr         ax,                     4                               ; they are all flat address, so we shift 4 bits to the right
 
-    ; halt the system
+    ; Now we clear es to 0, so that we can access our own data section.
+    ; with ds now point to the program's own data section, our default
+    ; data addressing is now invalid! Luckily, MBR code position is known
+    ; so we can override with known values, in this case, the easiest one is
+    ; to just use '0x00'
+    xor         cx,                     cx
+    mov         es,                     cx
+
+    ; to perform a long call, we need to provide both Code Segmentation address for CS, and offset index for IP
+    ; Now that call doesn't accept register combination for long call, we use memory instead
+    ; the memory map should look like this: offset, segmentation.
+    mov         [es:_far_call],         bx                              ; offset
+    mov         [es:_far_call+2],       ax                              ; segmentation
+
+    call far    [es:_far_call]
+
+    ; The loaded program will return to here after it's done with it's designed job
+    ; thus, we have to halt the system in case that the processor wonders off
 _infinite_loop:
     hlt
     jmp _infinite_loop
 
-times 16 - (($-$$) % 16) db 0
-times 128 - (16 - (($-$$) % 16)) db 0
+_far_call:
+    dw 0, 0
 
-_stack:
+; What does this do and why it's here? good question. This thing does one job, ensure alignment of _buffer without
+; having to setup a separate code segmentation that will messing with the code size
+times 16 - (($ - $$) % 16) db 0
+
 _buffer:
 
-times 510-($-$$) db 0
+times 510 - ($ - $$) db 0
 ; Boot signature
 dw 0xAA55

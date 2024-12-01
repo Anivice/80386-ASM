@@ -1,14 +1,14 @@
-[bits 16]          ; 16-bit mode
+[bits 16]                                   ; 16-bit mode
 
 segment head align=16 vstart=0
-    dw _program_end                     ; program length                                    +0
-    dw _entry_point                     ; program entry point(index) in code segmentation   +2
-    dw _data_start                      ; data segmentation start point                     +4
-    dw _data_end                        ; data segmentation end point                       +6
-    dw _code_start                      ; code segmentation start point                     +8
-    dw _code_end                        ; code segmentation end point                       +10
-    dw _stack_start                     ; stack segmentation start point                    +12
-    dw _stack_end                       ; stack segmentation end point                      +14
+    dw _program_end                         ; program length                                    +0
+    dw _entry_point                         ; program entry point(index) in code segmentation   +2
+    dw _data_start                          ; data segmentation start point                     +4
+    dw _data_end                            ; data segmentation end point                       +6
+    dw _code_start                          ; code segmentation start point                     +8
+    dw _code_end                            ; code segmentation end point                       +10
+    dw _stack_start                         ; stack segmentation start point                    +12
+    dw _stack_end                           ; stack segmentation end point                      +14
 
 segment _data_head align=16
 _data_start:
@@ -58,7 +58,7 @@ _entry_point: ;_entry_point(es:di=head_address)
     call        print
 
     popa
-    ret
+    retf                                    ; since we did a far call, we use a far return
 
 segment _code_tail align=16
 _code_end:

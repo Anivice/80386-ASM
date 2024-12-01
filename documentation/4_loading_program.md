@@ -9,8 +9,15 @@ Now, this chapter is one of those that is long and tedious, and potentially conf
 I'll try my best to negate all these factors, but if they still persist, I apologize in advance.
 
 In this chapter, we have the following goal to accomplish:
-1. Program loading process that demonstrates the relocation of segmentations.
-2. Access hardware beyond processor scope.
+1. Access hardware beyond processor scope.
+2. Program loading process that demonstrates the relocation of segmentations.
 
+The Master Boot Record (MBR) we attempt to write this time is a loader that loads the program at the next
+sector, and 
 
+---
+
+[Chapter 5](./5_other_hardware_control.md)
+
+[Back to the Main Page](../README.md)
 
