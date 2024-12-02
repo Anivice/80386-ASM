@@ -37,7 +37,7 @@ add_singular_binary_target(
 concatenate_files(
         chapter4.prg.loader.bin
         chapter4.loader.bin chapter4.user.bin)
-create_virtual_disk_from_bin(chapter4.program_loader.vhdx MicrosoftVirtualHardDisk chapter4.prg.loader.bin)
+create_virtual_disk_from_bin(chapter4.program_loader.vdi VirtualBoxDiskFormat chapter4.prg.loader.bin)
 
 add_qemu_emulation_target(boot_chapter4_loader chapter4.prg.loader.bin)
 add_qemu_debug_target(debug_chapter4_loader chapter4.prg.loader.bin)
