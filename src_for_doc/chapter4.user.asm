@@ -58,15 +58,10 @@ putc:   ; putc(al=character)
         mov         si,         80 * 2          ; start of the second line
 
         ; { 2000 (all the character on screen) - 80 (first line) } * 2 == all the data on screen except for the first line
-        mov         cx,         (2000 - 80) * 2
-        ;cld
-        ;rep movsw
-        .move_content:
-            mov     ax,         [ds:si]
-            mov     [es:di],    ax
-            inc     di
-            inc     si
-            loop    .move_content
+        mov         cx,         2000 - 80
+
+        cld
+        rep movsw
 
         ; now we need to clear all the characters at the bottom of the screen
         mov         di,         1920 * 2
