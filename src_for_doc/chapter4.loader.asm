@@ -3,6 +3,8 @@
 
 SYS_STARTINGPOINT           equ 0x7C00
 
+jmp start
+
 ; The above is the same as before, so I won't do very complicated explanation here
 
 ; refer to the documentation for detailed explanation of the following marcos
@@ -18,18 +20,22 @@ IO_REQUEST_AND_STATE        equ 0x1F7
 IO_READ                     equ 0x20
 DRQ                         equ 0x08
 
-USER_PROGRAM_SECTOR_SZ      equ 3
-
-start:
+read_disk:  ; read_disk(al=sector_count,ah=starting_sector) ==> es:di
+    pusha
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; we preserve the number of sectors to read to bp
+    mov         bx,                     ax
+    xor         bh,                     bh
+    mov         bp,                     bx
+
     ; First things first, we have to load our program into the memory
     ; Step 1: Set number of the blocks/sectors pending to read
-    mov         al,                     USER_PROGRAM_SECTOR_SZ
     mov         dx,                     IO_BLOCK_COUNT                  ; set out port
     out         dx,                     al
 
+    mov         al,                     ah                              ; ah => al, the starting sector
+
     ; Step 2 : Set the start block of LBA28
-    mov         al,                     0x01                            ; second block, LBA starts from 0
     mov         dx,                     IO_LBA28_0_7
     out         dx,                     al
 
@@ -50,14 +56,8 @@ start:
     out         dx,                     al
 
     ; Step 4: Read the Data from Buffer
-    ; Step 4.1. Setup ES:DI to point to the reserved buffer space
-    mov         ax,                     0x07C0
-    mov         es,                     ax
-    mov         di,                     _buffer - SYS_STARTINGPOINT
-
     ; Step 4.2. Read
-    mov         bp,                     USER_PROGRAM_SECTOR_SZ          ; the I/O port is 16-bit width, meaning 512 bytes is 256 words
-
+    ; bp contains the sector count we set at the start of the function
     .iteration_loop_read_word_from_disk:
     ; Step 4.2.1: Wait for the operation to finish !! We do this for each sector !!
     mov         dx,                     IO_REQUEST_AND_STATE
@@ -81,8 +81,43 @@ start:
         cmp             bp,                     0x00                    ; compare bp to 0
         jne             .iteration_loop_read_word_from_disk             ; if bp != 0, repeat, if bp == 0, continue downwards
 
+    popa
+    ret
+
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    mov         di,                     _buffer - SYS_STARTINGPOINT     ; reset the index to the starting point
+start:
+    mov         ax,                     0x07C0
+    mov         es,                     ax
+    mov         di,                     _buffer - SYS_STARTINGPOINT
+
+    mov         ah,                     1                               ; second sector
+    mov         al,                     1                               ; read one sector
+    call        read_disk
+
+    ; now, we determine how large the program is:
+    mov         ax,                     [es:di]                         ; first value is the actual program size
+    ; now that ax is the actual program size, we determine how much sectors it occupies
+    xor         dx,                     dx
+    mov         bx,                     512
+    div         bx
+    ; we see if dx is zero, if not, we add one more sector to read
+    cmp         dx,                     0x00
+    je          .skip_add_sector
+    ; if the program occupies more data but not a full sector, we have to manually add one more sector to read
+    inc         ax
+    .skip_add_sector:
+
+    ; since we have already read the second sector, we skip that and move buffer offset to new location
+    add         di,                     512
+    dec         al
+    mov         ah,                     2                               ; read starting from the third sector
+    cmp         al,                     0                               ; compare number of the pending sector to read to 0
+    je          .end_read                                               ; we have no sector to read, skip (program size < 512 B)
+    call        read_disk                                               ; if we still have sectors to read, continuing on
+    .end_read:
+
+    ; we have already read the whole program, now we need to reset our buffer offset
+    mov         di,                     _buffer - SYS_STARTINGPOINT
 
     ; Now, we relocate the user program. The allocation is hardcoded for simplicity
     ; new_seg_addr = cur_seg + (cur_index + off_in_prog) >> 4

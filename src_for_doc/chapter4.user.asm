@@ -22,11 +22,86 @@ _code_start:
 segment code align=16 vstart=0
 putc:   ; putc(al=character)
     pusha                                   ; preserve state
+    push        ds
+    push        es
+
     mov         bl,         al              ; save character to bl
 
     ; get_cursor() -> ax
     call        get_cursor
 
+    ; check if we have reached the bottom of the screen
+    ; when that happens, we first, need to move the content on the screen upwards one line (+80 characters)
+    ; first instance: last line and attempt a newline (ax >= 1920)
+    cmp         ax,         1920
+    jl          .end_of_scrolling           ; skip when ax < 1920
+    ; now ax >= 1920, skip if bl != 0x0A
+    cmp         bl,         0x0A
+    jne         .end_of_scrolling           ; skip if not a newline
+    ; bl == 0x0A, ax >= 1920
+    jmp         .start_of_scrolling         ; start scrolling
+    jmp         .end_of_scrolling           ; jump to skip the following condition check
+
+    ; second instance: last position
+    cmp         ax,         1999            ; compare if cursor is at the end of the screen
+    jne         .end_of_scrolling           ; skip if not
+
+    .start_of_scrolling:
+
+
+        ; destination:
+        mov         cx,         0xB800
+        mov         es,         cx
+        xor         di,         di
+
+        ; source:
+        mov         ds,         cx
+        mov         si,         80 * 2          ; start of the second line
+
+        ; { 2000 (all the character on screen) - 80 (first line) } * 2 == all the data on screen except for the first line
+        mov         cx,         (2000 - 80) * 2
+        ;cld
+        ;rep movsw
+        .move_content:
+            mov     ax,         [ds:si]
+            mov     [es:di],    ax
+            inc     di
+            inc     si
+            loop    .move_content
+
+        ; now we need to clear all the characters at the bottom of the screen
+        mov         di,         1920 * 2
+        mov         cx,         80
+
+        .clear_bottom:
+            mov byte    [es:di],        ' '
+            inc         di
+            mov byte    [es:di],        0x07
+            inc         di
+        loop        .clear_bottom
+
+        ; reset cursor to the start of the last line if bl != 0x0A
+        ; else, reset it to the end of the second last line
+        cmp         bl,         0x0A
+        je          .set_cursor_with_bx_equals_to_0x0A
+
+        mov         ax,         1920            ; line start at the bottom of the screen
+        call        set_cursor                  ; set cursor
+        jmp         .end_of_scrolling           ; end scrolling handling
+
+        ; reset it to the end of the second last line if bl == 0x0A
+        ; this way, if we continue to 0x0A handling, we get the correct result
+        .set_cursor_with_bx_equals_to_0x0A:
+            mov     ax,         1919            ; move cursor to the end of the second last line
+            call    set_cursor                  ; set cursor
+
+    .end_of_scrolling:
+
+    ; newline handler:
+    cmp         bl,         0x0A            ; if it's a newline marker
+    je          .set_cursor_to_newline      ; jump to putc.set_cursor_to_newline
+
+    ; Normal print:
     ; show the character
     mov         cx,         0xB800          ; Segment of video memory
     mov         es,         cx              ; set segmentation of video memory to es
@@ -40,11 +115,36 @@ putc:   ; putc(al=character)
     mov byte    [es:di],    bl
     mov byte    [es:di+1],  0x07
 
-    ; set cursor at updated location
+    ; set cursor at the updated location
     div         cx
     inc         ax
     call        set_cursor
+    jmp         .end                        ; jump over the newline section
 
+    ; print '\n'
+    .set_cursor_to_newline:
+        ; we called get_cursor()-->ax before hand, linear address is already in ax
+        ; now that we already know the input character is '\n', we can discard the content inside bx
+        mov         bx,         80
+        xor         dx,         dx
+
+        ; we do a division, the y will be inside ax and x will be inside dx
+        div         bx
+
+        ; now, we only care about ax(y), since x is always 0 at a new line
+        inc         ax                      ; move to next line
+
+        ; ax * 80 => ax, obtain the linear address
+        mov         bx,         80
+        xor         dx,         dx
+        mul         bx
+
+        call        set_cursor              ; now, we set the new location for cursor
+        ; done.
+
+    .end:
+    pop             es
+    pop             ds
     popa                                    ; restore
     ret                                     ; return
 
@@ -55,14 +155,14 @@ print:  ; print(ds:si=string)
 
     ; loop body:
     .loop:
-    mov byte    al,         [ds:si + bx]    ; move ds:si(string starting addr) + bx(offset) to al
-    cmp byte    al,         0x00            ; compare al with 0x00
+        mov byte    al,         [ds:si + bx]    ; move ds:si(string starting addr) + bx(offset) to al
+        cmp byte    al,         0x00            ; compare al with 0x00
 
-    je          .end                        ; if al == 0x00(null terminator), jump to .end
+        je          .end                        ; if al == 0x00(null terminator), jump to .end
 
-    call        putc                        ; call putc(al=character)
-    inc         bx                          ; move to next character by increasing bx by 1
-    jmp         .loop
+        call        putc                        ; call putc(al=character)
+        inc         bx                          ; move to next character by increasing bx by 1
+        jmp         .loop
 
     ; end of the function
     .end:
@@ -143,16 +243,31 @@ _data_start:
 
 segment data align=16 vstart=0
 msg:
-    db 'Bill Gates is the most famous and the world renowned genius of all time.', 0x0A
-    db 'Some of his famous and absolutely correct quotes are as follwing:', 0x0A
-    db '640 KB [of memory] ought to be enough for anybody.', 0x0A ; yeah this aged well
-    db 'No one will need more than 637 kilobytes of memory for a personal computer.', 0x0A
+    db "Bill Gates is the most famous and the world renowned genius of all time.", 0x0A
+    db "Some of his famous and absolutely correct quotes are as follwing:", 0x0A
+    db "640 KB [of memory] ought to be enough for anybody.", 0x0A ; yeah this aged well
+    db "No one will need more than 637 kilobytes of memory for a personal computer.", 0x0A
     ; yes, and he still uses a 637 KB memory computer
-    db 'Windows Isnt for Everyone.', 0x0A ; He said that CLI is for business workers. Well, I don't think so.
-    db 'We Always Overestimate the Change That Will Occur in the Next 2 Years and Underestimate'
-    db 'the Change That Will Occur in the Next 10', 0x00
+    db "Windows Isn't for Everyone.", 0x0A ; He said that CLI is for business workers. Well, I don't think so.
+    db "We Always Overestimate the Change That Will Occur in the Next 2 Years and Underestimate "
+    db "the Change That Will Occur in the Next 10", 0x0A
     ; the last two years Microsoft bought OpenAI and basically slapped everything with it, including github
-
+    db "And, we have Steve Jobs being a absolute God under his cult Apple. And here is his, "
+    db "again, absolutely correct statements:", 0x0A
+    db "People don't know what they want until you show it to them.", 0x0A ; oh no please I don't want it
+    db "I'm not going to spend my life trying to turn a wooden nickel(bad products) "
+    db "into a silver one(good one, by his standard).", 0x0A ; he did exactly that
+    db "We have always been shameless about stealing great ideas.", 0x0A ; lmao
+    db "I'm an artist. I'm a person who likes to create.", 0x0A ; lmfao
+    db "And we have Linus Torvalds, God of enternity:", 0x0A
+    db "No One Cares About Your Fancy Interface!", 0x0A ; maybe that why Linux has trash GUI?
+    db "I Don't Care About You!", 0x0A ; well that's warm, really a big fan when the programmers don't give a shit about their end user
+    db "Microkernels are a joke!", 0x0A ; yeah this aged so well lmao
+    db "If you don't like the way Linux works, you're free to fork it!", 0x0A ; or just use *BSD, it's much more consistent and it actually gives a shit
+    db "You're Stupid!", 0x0A ; another heart warming statement from God. Mind you, heed that!
+    db "Security patches are annoying!", 0x0A ; and is this why major cooperations tend to use *BSD?
+    db "We don't need fancy IDEs, just a good text editor!", 0x0A ; in another way, he needs fancy IDEs that looks like a text editor
+    db "The cloud is just somebody else's computer.", 0x00 ; yeah and no, and I don't deploy my products on mailing lists
 segment _data_tail align=16
 _data_end:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
