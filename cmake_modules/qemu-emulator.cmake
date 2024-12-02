@@ -6,6 +6,7 @@ include(cmake_modules/default_args.cmake)
 check_for_program_availability(QEMU_EXECUTABLE  qemu-system-i386)
 check_for_program_availability(GDB_EXECUTABLE   gdb)
 check_for_program_availability(QEMU_IMG_EXEC    qemu-img)
+check_for_program_availability(DD_EXECUTABLE    dd)
 
 default_args(QEMU_EMULATION_EXTRA_ARGS "")
 default_args(QEMU_DEBUG_EXTRA_ARGS     "")
@@ -57,8 +58,14 @@ function(create_virtual_disk_from_bin
 
     add_custom_target(${DISK_NAME} ALL
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${RAW_FILE_NAME}
-            COMMAND ${QEMU_IMG_EXEC} convert -f raw -O ${format} ${CMAKE_CURRENT_BINARY_DIR}/${RAW_FILE_NAME} ${CMAKE_CURRENT_BINARY_DIR}/${DISK_NAME}
+            COMMAND ${DD_EXECUTABLE} if=${CMAKE_CURRENT_BINARY_DIR}/${RAW_FILE_NAME}
+                                     of=${CMAKE_CURRENT_BINARY_DIR}/${RAW_FILE_NAME}.img
+                                     bs=1M conv=sync,fdatasync iflag=fullblock 2> /dev/null > /dev/null
+            COMMAND ${QEMU_IMG_EXEC} convert -f raw -O ${format}
+                                     ${CMAKE_CURRENT_BINARY_DIR}/${RAW_FILE_NAME}.img
+                                     ${CMAKE_CURRENT_BINARY_DIR}/${DISK_NAME}
             COMMENT "Converting disk ${RAW_FILE_NAME} from RAW Binary file to ${DISK_NAME} in format ${DISK_FORMAT}..."
             VERBATIM
+            BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${RAW_FILE_NAME}.img
     )
 endfunction()

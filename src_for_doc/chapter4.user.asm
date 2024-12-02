@@ -1,8 +1,8 @@
 [bits 16]                                   ; 16-bit mode
 
 GPU_REGISTER_INDEX      equ 0x3d4
-GPU_CURSOR_H4_BIT       equ 0x0e
-GPU_CURSOR_L4_BIT       equ 0x0f
+GPU_CURSOR_H8_BIT       equ 0x0e
+GPU_CURSOR_L8_BIT       equ 0x0f
 GPU_INDEXED_REG_IO      equ 0x3d5
 
 segment head align=16 vstart=0
@@ -176,7 +176,7 @@ get_cursor: ; get_cursor()->ax
 
     ; now, point the GPU register index to the cursor register (higher 4 bit)
     mov         dx,         GPU_REGISTER_INDEX
-    mov         al,         GPU_CURSOR_H4_BIT
+    mov         al,         GPU_CURSOR_H8_BIT
     out         dx,         al
 
     ; now, read from GPU register IO port, which is cursor register (higher 4 bit)
@@ -187,7 +187,7 @@ get_cursor: ; get_cursor()->ax
 
     ; now, point the GPU register index to the cursor register (lower 4 bit)
     mov         dx,         GPU_REGISTER_INDEX
-    mov         al,         GPU_CURSOR_L4_BIT
+    mov         al,         GPU_CURSOR_L8_BIT
     out         dx,         al
 
     ; now, read from GPU register IO port, which is cursor register (lower 4 bit)
@@ -205,7 +205,7 @@ set_cursor: ; set_cursor(ax)
 
     ; now, point the GPU register index to the cursor register (higher 4 bit)
     mov         dx,         GPU_REGISTER_INDEX
-    mov         al,         GPU_CURSOR_H4_BIT
+    mov         al,         GPU_CURSOR_H8_BIT
     out         dx,         al
 
     ; now, read from GPU register IO port, which is cursor register (higher 4 bit)
@@ -215,7 +215,7 @@ set_cursor: ; set_cursor(ax)
 
     ; now, point the GPU register index to the cursor register (lower 4 bit)
     mov         dx,         GPU_REGISTER_INDEX
-    mov         al,         GPU_CURSOR_L4_BIT
+    mov         al,         GPU_CURSOR_L8_BIT
     out         dx,         al
 
     ; now, read from GPU register IO port, which is cursor register (lower 4 bit)
