@@ -48,7 +48,6 @@ putc:   ; putc(al=character)
 
     .start_of_scrolling:
 
-
         ; destination:
         mov         cx,         0xB800
         mov         es,         cx
@@ -123,7 +122,7 @@ putc:   ; putc(al=character)
 
     ; print '\n'
     .set_cursor_to_newline:
-        ; we called get_cursor()-->ax before hand, linear address is already in ax
+        ; we called get_cursor()->ax before hand, linear address is already in ax
         ; now that we already know the input character is '\n', we can discard the content inside bx
         mov         bx,         80
         xor         dx,         dx
