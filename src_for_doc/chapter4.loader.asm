@@ -49,33 +49,37 @@ start:
     mov         al,                     IO_READ
     out         dx,                     al
 
-    ; Step 4: Wait for the operation to finish
-    .wait_for_disk_ops:
-        in          al,                 dx
-;        and         al,                 10001000B
-;        cmp         al,                 00001000B
-        test        al,                 DRQ
-        jz          .wait_for_disk_ops
-
-    ; Step 5: Read the Data from Buffer
-    ; 1. Setup ES:DI
+    ; Step 4: Read the Data from Buffer
+    ; Step 4.1. Setup ES:DI to point to the reserved buffer space
     mov         ax,                     0x07C0
     mov         es,                     ax
     mov         di,                     _buffer - SYS_STARTINGPOINT
 
-    ; 2. Read
-    mov         cx,                     256 * USER_PROGRAM_SECTOR_SZ    ; the I/O port is 16-bit width, meaning 512 bytes is 256 words
-    mov         dx,                     IO_PORT
+    ; Step 4.2. Read
+    mov         bp,                     USER_PROGRAM_SECTOR_SZ          ; the I/O port is 16-bit width, meaning 512 bytes is 256 words
 
     .iteration_loop_read_word_from_disk:
-        in          ax,                 dx
-        mov word    [es:di],            ax
-        add         di,                 2                               ; 2 bytes, 1 word
+    ; Step 4.2.1: Wait for the operation to finish !! We do this for each sector !!
+    mov         dx,                     IO_REQUEST_AND_STATE
+    .wait_for_disk_read_ops:
+        in          al,                 dx
+        test        al,                 DRQ                             ; performs a bitwise AND check
+                                                                        ; and see if Zero Flag (when result == 0) is set
+        jz          .wait_for_disk_read_ops
 
-        in          al,                 IO_ERR_STATE
+        ; here is the sub loop body, for simplicity we use cx+loop instruction
+        mov             cx,                     256                     ; we read one sector and one sector only
+        mov             dx,                     IO_PORT                 ; set dx to IO port
+        .read_sector:
+            in          ax,                     dx                      ; read from IO port
+            mov word    [es:di],                ax                      ; write to buffer
+            add         di,                     2                       ; 2 bytes, 1 word
+        ; loop logic is similar to: do { ... } while (--cx != 0)
+        loop            .read_sector
 
-        ; loop logic is similar to do { ... } while (--cx != 0)
-        loop .iteration_loop_read_word_from_disk
+        dec             bp                                              ; decrease bp
+        cmp             bp,                     0x00                    ; compare bp to 0
+        jne             .iteration_loop_read_word_from_disk             ; if bp != 0, repeat, if bp == 0, continue downwards
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     mov         di,                     _buffer - SYS_STARTINGPOINT     ; reset the index to the starting point
