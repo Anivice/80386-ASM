@@ -246,7 +246,7 @@ msg:
     db "We Always Overestimate the Change That Will Occur in the Next 2 Years and Underestimate "
     db "the Change That Will Occur in the Next 10", 0x0A
     ; the last two years Microsoft bought OpenAI and basically slapped everything with it, including github
-    db "And, we have Steve Jobs being a absolute God under his cult Apple. And here is his, "
+    db "And, we have Steve Jobs being an absolute God under his cult Apple. And here is his, "
     db "again, absolutely correct statements:", 0x0A
     db "People don't know what they want until you show it to them.", 0x0A ; oh no please I don't want it
     db "I'm not going to spend my life trying to turn a wooden nickel(bad products) "
