@@ -47,8 +47,8 @@ The bond wire provides a connection between the silicon die and the external har
 usually, expose themselves as pins outside the chip package.
 
 Each communication port has a specific address to identify themselves. Thus, the port numbers listed from line 6 to 13.
-CPU send and receive data using `in` and `out` instructions, which only takes `al` or `ax` as 8bit or 16bit to send or
-receive data, and `dx` or constants to specify the ports, meaning:
+CPU sends and receives data using `in` and `out` instructions, which only takes `al` or `ax` as 8bit or 16bit mode to send or
+receive data, and uses `dx` or constants to specify the ports, meaning:
 
 ```nasm
     in  ax, dx
@@ -167,11 +167,14 @@ LBA mode, read from IDE Master disk.
 > to tell the controller who is Master and who is Slave.
 > There are these small devices called jump wires, as shown below:
 > ![Jump Wire](JumpWire.png)
+> 
 > These are female-female jump wires, connecting two male pins.
 > ![Disk Master Slave](disk-master-and-slave.png)
 > ![Disk Master Slave Side](disk-master-and-slave-side-view.png)
 > The pins on the disk are two male pins (pins that poke out).
 > ~~(On a total side note, whoever came up with these names is a real legend.)~~
+
+Set up LBA28:
 
 ```nasm
  23      ; Step 2 : Set the start block of LBA28
