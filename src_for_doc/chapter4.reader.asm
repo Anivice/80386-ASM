@@ -13,6 +13,7 @@ IO_LBA28_24_27_W_4_CTRL equ 0x1F6
 IO_REQUEST_AND_STATE    equ 0x1F7
 
 IO_READ                 equ 0x20
+DRQ                     equ 0x08
 
 start:
     ; Step 1: Set number of the blocks/sectors pending to read
@@ -32,7 +33,7 @@ start:
     mov     dx,     IO_LBA28_16_23
     out     dx,     al
 
-    mov     al,     11100000B           ; 1 [LBA=1/CHS=0] 1 [IDE Master=1/IDE Slave=0] 0 0 0 0
+    mov     al,     11100000B           ; 1 [LBA=1/CHS=0] 1 [IDE Master=0/IDE Slave=1] 0 0 0 0
     mov     dx,     IO_LBA28_24_27_W_4_CTRL
     out     dx,     al
 
@@ -46,7 +47,7 @@ start:
         in          al,         dx
         and         al,         10001000B
         cmp         al,         00001000B
-        jne     .wait_for_disk_ops
+        jne         .wait_for_disk_ops
 
     ; Step 5: Read the Data from Buffer
     ; 1. Setup DS:SI

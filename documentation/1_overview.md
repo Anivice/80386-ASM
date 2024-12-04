@@ -12,6 +12,7 @@ That is why, understanding the original old 8086 before we talk about Intel 8038
 a priority.
 
 ### Registers
+
 Intel 8086 has eight registers that can be used in various contexts, which are:
 `AX`, `BX`, `CX`, `DX`, `SI`, `DI`, `BP`, and `SP`.
 

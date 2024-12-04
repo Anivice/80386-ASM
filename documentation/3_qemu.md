@@ -194,12 +194,12 @@ Here is an example that shows an 'A' on the screen:
     ; set extra segment
     mov ax, 0xB800
     mov es, ax
-    
+
     ; set the first character on screen as A with
-    ; green text and blue background 
+    ; green text and blue background
     mov byte [es:0x0000], 'A'
     mov byte [es:0x0001], 0x9A
-    
+
     jmp $           ; infinite loop, so the processor don't wonder off
 ```
 
@@ -259,19 +259,19 @@ Unfortunately for them, fortunately for us, there are automated tools specifical
     # disassemble
     disassemble [Starting Addr], +[Length]
     disassemble [Starting Addr], [End Addr]
-    
+
     # step over
     stepi
-    
+
     # set break at address
     break *[Addr]
-    
+
     # continue after break
     continue
-    
+
     # show registers
     info registers
-    
+
     # show memory
     # Example, `x/10hx` shows 32 bytes memory area starting from 0x7C00 in 16-bit hexadecimal format
     #     10: Number of 16-bit words to display (10 = 10 words = 20 bytes).
@@ -279,9 +279,9 @@ Unfortunately for them, fortunately for us, there are automated tools specifical
     #     x:  Display in hexadecimal format.
     #     0x7C00: The starting address to examine.
     x/10hx 0x7C00
-    
+
     # Show context System Context: Includes the stack, data segment (DS:SI),
-    # extra segment (ES:DI), general-purpose registers, flags, 
+    # extra segment (ES:DI), general-purpose registers, flags,
     # and queued instructions.
     # Note that context command is invoked every time stepi is invoked
     context
@@ -301,4 +301,3 @@ Unfortunately for them, fortunately for us, there are automated tools specifical
 [Chapter 3.1](./3.1_assembly_example_movsb.md)
 
 [Back to the Main Page](../README.md)
-

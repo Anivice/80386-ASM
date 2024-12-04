@@ -46,7 +46,7 @@ read_disk:  ; read_disk(al=sector_count,ah=starting_sector) ==> es:di
     mov         dx,                     IO_LBA28_16_23
     out         dx,                     al
 
-    mov         al,                     11100000B                       ; 1 [LBA=1/CHS=0] 1 [IDE Master=1/IDE Slave=0] 0 0 0 0
+    mov         al,                     11100000B                       ; 1 [LBA=1/CHS=0] 1 [IDE Master=0/IDE Slave=1] 0 0 0 0
     mov         dx,                     IO_LBA28_24_27_W_4_CTRL
     out         dx,                     al
 

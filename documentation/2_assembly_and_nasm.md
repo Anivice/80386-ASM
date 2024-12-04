@@ -19,6 +19,7 @@ Here is an example assembly code of Intel 8086, in Intel syntax, for NASM assemb
 which is the syntax that we will be using throughout this entire tutorial:
 
 <a id="assembly-code"></a>
+
 ```nasm
     MOV AX, 0x3F
     ADD BX, AX
@@ -34,6 +35,7 @@ which is the syntax that we will be using throughout this entire tutorial:
 > actually skin you alive for this.)
 
 In the above example, we have:
+
 - `MOV AX, 0x3F`: moves the value `0x3F` into the `AX` register.
 - `ADD BX, AX`: adds the value in `AX` to the `BX` register.
 - `ADD CX, AX`: adds the value in `AX` to the `CX` register.
@@ -103,4 +105,3 @@ The disassembled instructions will be printed onto the console output:
 [Chapter 3](3_qemu.md)
 
 [Back to the Main Page](../README.md)
-
