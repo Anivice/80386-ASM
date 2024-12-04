@@ -74,20 +74,21 @@ putc:   ; putc(al=character)
             inc         di
         loop        .clear_bottom
 
-        ; reset cursor to the start of the last line if bl != 0x0A
-        ; else, reset it to the end of the second last line
+        ; reset cursor to the start of the last line
+        ; if bl != 0x0A, continue putc, else, we end putc (since we already handled 0x0A by scrolling)
         cmp         bl,         0x0A
         je          .set_cursor_with_bx_equals_to_0x0A
 
         mov         ax,         1920            ; line start at the bottom of the screen
         call        set_cursor                  ; set cursor
-        jmp         .end_of_scrolling           ; end scrolling handling
+        jmp         .end_of_scrolling           ; end scrolling handling, continue to put the character
 
-        ; reset it to the end of the second last line if bl == 0x0A
-        ; this way, if we continue to 0x0A handling, we get the correct result
+        ; move cursor to start at the bottom of the screen if bl == 0x0A
+        ; and we end our putc, since this is basically print a newline
         .set_cursor_with_bx_equals_to_0x0A:
-            mov     ax,         1919            ; move cursor to the end of the second last line
+            mov     ax,         1920            ; move cursor to start at the bottom of the screen
             call    set_cursor                  ; set cursor
+            jmp     .end                        ; finish putc, since we basically did the whole thing
 
     .end_of_scrolling:
 
@@ -253,7 +254,7 @@ msg:
     db "into a silver one(good one, by his standard).", 0x0A ; he did exactly that
     db "We have always been shameless about stealing great ideas.", 0x0A ; lmao
     db "I'm an artist. I'm a person who likes to create.", 0x0A ; lmfao
-    db "And we have Linus Torvalds, God of enternity:", 0x0A
+    db "And we have Linus Torvalds, God of Enternity, if you will:", 0x0A
     db "No One Cares About Your Fancy Interface!", 0x0A ; maybe that why Linux has trash GUI?
     db "I Don't Care About You!", 0x0A ; well that's warm, really a big fan when the programmers don't give a shit about their end user
     db "Microkernels are a joke!", 0x0A ; yeah this aged so well lmao

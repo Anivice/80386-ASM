@@ -16,7 +16,7 @@ function(add_qemu_emulation_target
         BOOT_SECTOR_FILE_NAME)
     add_custom_target(${TARGET_NAME}
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
-            COMMAND ${QEMU_EXECUTABLE} ${QEMU_EMULATION_EXTRA_ARGS} -smp 1 -cpu 486
+            COMMAND ${QEMU_EXECUTABLE} ${QEMU_EMULATION_EXTRA_ARGS} -smp 1 -cpu 486 -audio alsa,model=sb16
                                         -drive format=raw,file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
                                         -m 32M
             USES_TERMINAL
@@ -29,7 +29,7 @@ function(add_qemu_debug_target
         BOOT_SECTOR_FILE_NAME)
     add_custom_target(${TARGET_NAME}
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
-            COMMAND ${QEMU_EXECUTABLE} ${QEMU_DEBUG_EXTRA_ARGS} -smp 1 -cpu 486
+            COMMAND ${QEMU_EXECUTABLE} ${QEMU_DEBUG_EXTRA_ARGS} -smp 1 -cpu 486 -audio alsa,model=sb16
                                         -drive format=raw,file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
                                         -m 32M -s -S -monitor stdio -d int,in_asm,cpu,exec
                                         -D qemu_debug_${TARGET_NAME}.log
