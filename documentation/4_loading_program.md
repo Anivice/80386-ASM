@@ -1,4 +1,4 @@
-# Chapter 4: Loading a Program
+# Chapter 4: Disk Operations and Program Relocation
 
 The boot sector has a maximum size of 512 bytes.
 Thus, any complicated programming is off the table, not even with assembly.
@@ -35,40 +35,45 @@ But, right after that, we defined the following constants:
  15  IO_READ                 equ 0x20
 ```
 
+### Instruction `in` and `out`
+
 Before we delve into the meaning behind these constants, we have to understand two instructions: `in` and `out`.
-`in` reads data from a port on CPU, and `out` output data to a port.
+`in` reads data from a port on CPU, and `out` outputs data to a port.
 Different from the registers inside CPU, these ports, or pin, connects to external hardware beyond CPU scope.
-We can have a look with the pictures of an old CPU silicon die
+We can have a look with the picture of an old 80386 CPU silicon die
 (a piece of flat, usually square, silicon with circuits on it)
 taken by Ken Shirriff, who has vast knowledge on these old school pieces of hardware:
 ![CPU DIE](die-labeled-w-text.png)
 
 The bond wire provides a connection between the silicon die and the external hardware,
-usually, expose themselves as pins outside the chip package.
+and usually exposes itself as a pin (golden spike) outside the chip package.
 
-Each communication port has a specific address to identify themselves. Thus, the port numbers listed from line 6 to 13.
-CPU sends and receives data using `in` and `out` instructions, which only takes `al` or `ax` as 8bit or 16bit mode to send or
-receive data, and uses `dx` or constants to specify the ports, meaning:
+Each communication port has a specific address to identify themselves, like the port numbers listed from line 6 to 13.
+CPU sends and receives data using `in` and `out` instructions, which only takes `al` or `ax` to store the 8bit or 16bit data to send or receive,
+and uses `dx` or constants to specify the port, meaning:
 
 ```nasm
-    in  ax, dx
-    in  al, 0x37
+    in  ax, dx      ; read 16bit width data from port number in dx to ax
+    in  al, 0x37    ; read 8bit width data from port 0x37
 
-    out dx,   al
-    out 0x37, ax
+    out dx,   al    ; output 8bit data in al to port number in dx
+    out 0x37, ax    ; output 16bit data in ax to port 0x37
 ```
 
 > **Important Note:** While `dx` can specify port addresses up to 16-bit width,
 > constants on the other hand, **can only address 8-bit port addresses**.
 > It means ```in al, 0x1F0``` is ***NOT*** a valid operation,
-> but NASM **might allow it** in the compilation process, which it really shouldn't.
-> Do be cautious.
+> but NASM **might *still* allow it** in the compilation process, which it really shouldn't.
+> Do be cautious, and pay attention to the warning messages.
+> > I know people ignore warning messages a lot. However, warning messages can be potential Bugs.
+> > Now, when in GCC, forced data type conversion (C style conversions in C++) will generate a lot of warning messages, as well as temporary hacks.
+> > The code we are using will generate warning messages, like reserved space. But, it doesn't mean that all the warning messages are meaningless.
+> > A 16-bit to 8-bit data conversion causing overflow will be warned by NASM, and you have to pay special attention to these.
 
-Now, unlike microprocessors, these pins on CPU are not connected to the hardware like hard disk or GPU directly.
-They are connected to what we know as Input & Output Controller Hub, or ICH bridge.
+Unlike microprocessors, these pins on CPU are not connected to the hardware like hard disk or GPU directly.
+They are connected to what we know as Input and Output Controller Hub (Bridge), or ICH (Bridge).
 CPU connects itself to ICH, and ICH then connects itself to Bus.
-Bus is a huge cable line consisting of multiple cables,
-where ultimately all external devices, like sound cards, GPUs, keyboards, connect.
+Bus is a huge cable line consisting of multiple cables, where ultimately all external devices, like sound cards, GPUs, keyboards, connect.
 
 We explain each port as we go.
 
@@ -104,56 +109,45 @@ Since it is an 8-bit port, the maximum sectors we can read at one time are 256.
 > decreasing until it becoming `0`, which is when the operation ultimately finishes.
 > As a result, we can ultimately read 256 sectors in total.
 > However, depending on the vendors, this might not be true.
-> Consider this as a hack, and a hack is never recommended and only supposed to serve as a temporary solution.
+> Consider this as a hack, and a hack is never recommended and only supposed to serve as a temporary solution (unless, of course, you are writing Linux kernels).
 
 #### Step 2: Specify the Starting Sector/Block Desired to Read
 
 We have covered LBA before, it is a logic block addressing mode in hard disks.
 Now, LBA has multiple different standards, which mainly have the differences in the addressing width.
 A simple LBA addressing mode is 28 bits in width.
-Twenty-eight bits gives us $2^{28} \times 512 = 268,435,456 \times 512 = 137,438,953,472 = 128 \text{GB}$ accessible disk space.
-Remember, that was an era where owning a 2 GB disk is considered rich, 128 GB is usually unheard of.
+Twenty-eight bits gives us $2^{28} \times 512 = 268,435,456 \times 512 = 137,438,953,472 = 128 \text{GiB}$ accessible disk space.
+Remember, that was an era where owning a 2 GiB disk is considered rich, 128 GiB is usually unheard of.
 Technology quickly evolves, normally we use 48-bit LBA mode to manage our disks now.
-LBA 48 gives us $2^{48} \times 512 = 128 \text{PB}$ manageable disk,
-equaling to $134,217,728$ GB addressable disk space, which is unheard of for personal use as of December 4th, 2024.
+LBA 48 gives us $2^{48} \times 512 = 128 \text{PiB}$ manageable disk, equaling to $134,217,728$ GiB addressable disk space,
+which is unheard of for personal use as of December 4th, 2024.
 
 > **Note:** I know I use GB and GiB interchangeably, but in storage, GB and GiB are two different units.
 > And by default, when I say GB, I mean GiB.
 > I don't know why people tend to use that "GB" instead of GiB since that unit makes little sense to me.
 > When we use "GB" instead of GiB, the calculation becomes: 1 GB = 1,000,000,000 bytes ($10^9$)
 > (While 1 GiB = $1 \times 1024 \times 1024 \times 1024$ Bytes, which is what I always use).
-> This might make sense for common users, but it causes a lot of inconveniences in programming.
+> This might make sense to common users that are not programmers, but it causes a lot of inconveniences in code.
 > This unit makes LBA28's addressable space become 137.438 GB instead of a sensible integer (128).
 > CPU is terrible, very imprecise, and resource-demanding when it comes to floating-points.
 > That's why we tend to avoid that.
 
 Now, we set the start block in LBA28.
-The configuration is simple: we'd like to read the first block. Since LBA starts from 0, the number is
-`0000 0000 0000 0000 0000 0000 0001`, which is, well, 1.
+The configuration is simple: we'd like to read the first block.
+Since LBA starts from 0, the number is `0000 0000 0000 0000 0000 0000 0001`, which is, well, 1.
 Now, `IO_LBA28_0_7`, `IO_LBA28_8_15`, `IO_LBA28_16_23` are easy to understand.
 They are 8-bit width ports, and correspond to the bits in LBA28.
 
 `IO_LBA28_24_27_W_4_CTRL`, however, is a bit different (four bits different, actually).
 The following table is its higher four bits:
 
-<table style="width: 100%; text-align: center; border-collapse: collapse;">
-  <tr>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;">7</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;">6</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;">5</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;">4</td>
-  </tr>
-  <tr>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;" colspan="1">1</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;" colspan="1">CHS=0<br>LBA=1</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;" colspan="1">1</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;" colspan="1">Master=0<br>Slave=1</td>
-  </tr>
-</table>
+| 7 | 6              | 5   | 4                   |
+|---|----------------|-----|---------------------|
+| 1 | CHS=0<br>LBA=1 | 1   | Master=0<br>Slave=1 |
 
-The lower four bits are for LBA28 addressing, but the higher four bits are used for configuration.
+The lower four bits are used for LBA28 addressing, but the higher four bits are used for configuration.
 We ignore the seventh and fifth bit for now, which is always 1 in our cases.
-The configuration we actually want to pay attention to is the sixth and fourth bit.
+The configuration bit we actually want to pay attention to is the sixth and fourth bit.
 The sixth bit sets our addressing mode, which, in our case, should be 1 (LBA).
 The fourth bit is the disk we want to read.
 IDE controller allows us to mount two disks on one cable.
@@ -166,15 +160,18 @@ LBA mode, read from IDE Master disk.
 > A bit of information here: When you config the IDE disks, you actually have to wire two pins on the disk
 > to tell the controller who is Master and who is Slave.
 > There are these small devices called jump wires, as shown below:
+> 
 > ![Jump Wire](JumpWire.png)
 > 
 > These are female-female jump wires, connecting two male pins.
+> 
 > ![Disk Master Slave](disk-master-and-slave.png)
 > ![Disk Master Slave Side](disk-master-and-slave-side-view.png)
+> 
 > The pins on the disk are two male pins (pins that poke out).
 > ~~(On a total side note, whoever came up with these names is a real legend.)~~
 
-Set up LBA28:
+**Set up LBA28:**
 
 ```nasm
  23      ; Step 2 : Set the start block of LBA28
@@ -194,10 +191,9 @@ Set up LBA28:
  37      out     dx,     al
 ```
 
-#### Step 3: Request Read
+#### Step 3: Request ICH to Read
 
-Now that we have written the relevant information to the controller, we can tell the controller that we'd
-like to read some data from the disk.
+Now that we have written the relevant information to the controller, we can tell the controller that we'd like to read some data from the disk.
 
 ```nasm
  39      ; Step 3: Request ICH I/O Read
@@ -214,32 +210,13 @@ By writing to the port `IO_REQUEST_AND_STATE` with `IO_READ`, we just requested 
 That's why we call it "IO_REQUEST_AND_STATE," it outputs IO request and gets IO state.
 Now, there are only three bits we are interested in: seventh, third, and zeroth, and they are `BSY`, `DRQ` and `ERR`.
 
-<table style="width: 100%; text-align: center; border-collapse: collapse;">
-  <tr>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;">7</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;">6</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;">5</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;">4</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;">3</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;">2</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;">1</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;">0</td>
-  </tr>
-  <tr>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;" colspan="1">BSY</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;"></td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;"></td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;"></td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;" colspan="1">DRQ</td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;"></td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;"></td>
-    <td style="border: 1px solid black; padding: 5px; width: 30px;" colspan="1">ERR</td>
-  </tr>
-</table>
+| 7   | 6 | 5 | 4 | 3    | 2 | 1 | 0   |
+|-----|---|---|---|------|---|---|-----|
+| BSY |   |   |   | DRQ  |   |   | ERR |
 
 When `BSY` is `1`, controller tells CPU that it is busy reading data, and is not ready to exchange data.
-When `DRQ`, which stands for `Data Request`, is `1`, and `BSY` is `0`, ICH indicates that the controller
-is done reading and is ready to exchange data.
+When `DRQ`, which stands for `Data Request`, is `1`, and `BSY` is `0`,
+ICH indicates that the controller is done reading and is ready to exchange data.
 So, we have to wait until that happens.
 
 > **Important Note:** You have to wait for the operation to complete for every single sector!
@@ -256,7 +233,7 @@ So, we have to wait until that happens.
 
 The above code ignores error handling for simplicity.
 Now, if you do encounter an error, `ERR` will be marked as `1` and `IO_ERR_STATE` will provide the error code.
-The error code varies across different systems, but the following is a reference.
+The error code varies across different systems; the following is only a reference.
 
 | **Bit** | **Name**                       | **Description**                                                                |
 |---------|--------------------------------|--------------------------------------------------------------------------------|
@@ -636,6 +613,7 @@ Nothing too crazy, but there are things that need explanation:
 #### New Segmentation Address Calculation
 
 $$\text{NewSegmentationAddress} = \frac{\text{CodeStartingPointInMemory} + \text{AbsoluteAddressInCode}}{16} + \text{0x07C0} $$
+
 where
 - `NewSegmentationAddress` is, well, new segmentation address
 - `CodeStartingPointInMemory` is where the code is loaded to.
@@ -696,21 +674,150 @@ flowchart TD
 
 ## User Program And GPU Register Manipulation
 
-# TODO: !! FINISH THIS !!
+### GPU Registers
+
+GPU is really complicated hardware, much, much, much more complicated than CPU.
+This stays true even back in the 90s.
+Now, here we only talk about two IO ports and two registers.
+
+GPU allows CPU to access its own registers directly, but only through pointer/index.
+We write the index addresses, like `GPU_CURSOR_H8_BIT`, to `GPU_REGISTER_INDEX`,
+then read/write the registers through `GPU_INDEXED_REG_IO`.
 
 ```nasm
-1   [bits 16]                                   ; 16-bit mode
-2
 3   GPU_REGISTER_INDEX      equ 0x3d4
 4   GPU_CURSOR_H8_BIT       equ 0x0e
 5   GPU_CURSOR_L8_BIT       equ 0x0f
 6   GPU_INDEXED_REG_IO      equ 0x3d5
-7
+```
 
-18  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+### Segmentation Identifiers
+
+Segmentations `_code_head`, `_code_tail`, `_data_head`, `_data_tail`, `_stack_reserved`, and `tail` has no `vstart`,
+meaning the labels
+`_code_start`, `_code_end`, `_data_start`, `_data_end`, `_stack_start`, `_stack_end`, and `_program_end`
+are the absolute offset.
+These labels are used to determine the exact size of each segmentation, though not all of them are used in the loader.
+
+```nasm
 19  segment _code_head align=16
 20  _code_start:
-21
+; ...
+231 segment _code_tail align=16
+232 _code_end:
+
+236 segment _data_head align=16
+237 _data_start:
+; ...
+266 segment _data_tail align=16
+267 _data_end:
+
+271 segment _stack_reserved align=16
+272 _stack_start:
+273     resb 0x1FF
+274 _stack_end:
+
+277 segment tail align=16
+278 _program_end:
+280     times 16 db 0
+```
+
+### GPU Direct Access and Manipulation
+
+Entry point is pretty simple: we call print to print out the content inside `ds:si`, and exit.
+The logic of function print is pretty simple as well: We read from `ds:si` and see if the data we read is `0`.
+If it is zero, then, being a null terminated string, this indicates the end of the string, thus return to the main function.
+If not, then there are still data left inside `ds:si`, we continue output data using `putc(al=character)`.
+
+#### GPU Get and Set Cursor Position
+
+We use I/O port to access and manipulate GPU cursor position:
+
+```nasm
+175 get_cursor: ; get_cursor()->ax
+176     push        dx
+177
+178     ; now, point the GPU register index to the cursor register (higher 8 bit)
+179     mov         dx,         GPU_REGISTER_INDEX
+180     mov         al,         GPU_CURSOR_H8_BIT
+181     out         dx,         al
+182
+183     ; now, read from GPU register IO port, which is cursor register (higher 8 bit)
+184     mov         dx,         GPU_INDEXED_REG_IO
+185     in          al,         dx
+186
+187     mov         ah,         al
+188
+189     ; now, point the GPU register index to the cursor register (lower 8 bit)
+190     mov         dx,         GPU_REGISTER_INDEX
+191     mov         al,         GPU_CURSOR_L8_BIT
+192     out         dx,         al
+193
+194     ; now, read from GPU register IO port, which is cursor register (lower 8 bit)
+195     mov         dx,         GPU_INDEXED_REG_IO
+196     in          al,         dx
+197
+198     pop         dx
+199     ret
+200
+201 set_cursor: ; set_cursor(ax)
+202     push        dx
+203     push        bx
+204
+205     mov         bx,         ax              ; save ax to bx
+206
+207     ; now, point the GPU register index to the cursor register (higher 8 bit)
+208     mov         dx,         GPU_REGISTER_INDEX
+209     mov         al,         GPU_CURSOR_H8_BIT
+210     out         dx,         al
+211
+212     ; now, read from GPU register IO port, which is cursor register (higher 8 bit)
+213     mov         dx,         GPU_INDEXED_REG_IO
+214     mov         al,         bh
+215     out         dx,         al
+216
+217     ; now, point the GPU register index to the cursor register (lower 8 bit)
+218     mov         dx,         GPU_REGISTER_INDEX
+219     mov         al,         GPU_CURSOR_L8_BIT
+220     out         dx,         al
+221
+222     ; now, read from GPU register IO port, which is cursor register (lower 8 bit)
+223     mov         dx,         GPU_INDEXED_REG_IO
+224     mov         al,         bl
+225     out         dx,         al
+226
+227     pop         bx
+228     pop         dx
+229     ret
+```
+
+There's really nothing spacial to it, except for the meaning of the register.
+`GPU_CURSOR_L8_BIT` and `GPU_CURSOR_H8_BIT` are the lower and higher 8-bit of cursor register.
+The register contains the linear address of the cursor, meaning, for an 80x25 VGA analog display,
+the register has the range of $ [0, 1999] $ ($ [0, 80 \times 25–1] $).
+
+Now, the following code is very, well, not modular like. So I will again, draw a diagram of the process of `putc`.
+
+```mermaid
+flowchart TD
+    A[Get current cursor position] --> B{Is cursor position at the and of line and the character pending to print is 0x0A, or is the cursor position is simply at the end of the screen?}
+    B --> |Yes |D[Copy the VRAM upwards 160 bytes, meaning, one line]
+    B --> |No  |I
+    D --> E[Clear the content of last line]
+    E --> F[Reset cursor position to the start of the last line]
+    F --> G{Is the character pending to print is 0x0A?}
+    G --> |Yes |H[END]
+    G --> |No  |K
+    I{Is the character pending to print 0x0A?} --> |Yes |J[Move cursor to the start of the next line]
+    J --> H
+    I --> |No  |K[Copy the character to VRAM]
+    K --> L[Move cursor to the next position]
+    L --> H
+```
+
+The code is as following:
+
+```nasm
 22  segment code align=16 vstart=0
 23  putc:   ; putc(al=character)
 24      pusha                                   ; preserve state
@@ -834,142 +941,6 @@ flowchart TD
 142     pop             ds
 143     popa                                    ; restore
 144     ret                                     ; return
-145
-146 print:  ; print(ds:si=string)
-147     pusha                                   ; preserve state
-148
-149     xor         bx,         bx              ; clear bx
-150
-151     ; loop body:
-152     .loop:
-153         mov byte    al,         [ds:si + bx]    ; move ds:si(string starting addr) + bx(offset) to al
-154         cmp byte    al,         0x00            ; compare al with 0x00
-155
-156         je          .end                        ; if al == 0x00(null terminator), jump to .end
-157
-158         call        putc                        ; call putc(al=character)
-159         inc         bx                          ; move to next character by increasing bx by 1
-160         jmp         .loop
-161
-162     ; end of the function
-163     .end:
-164     popa                                    ; restore state
-165     ret
-166
-167 _entry_point: ; _entry_point()
-168     pusha
-169
-170     call        print
-171
-172     popa
-173     retf                                    ; since we did a far call, we use a far return
-174
-175 get_cursor: ; get_cursor()->ax
-176     push        dx
-177
-178     ; now, point the GPU register index to the cursor register (higher 4 bit)
-179     mov         dx,         GPU_REGISTER_INDEX
-180     mov         al,         GPU_CURSOR_H8_BIT
-181     out         dx,         al
-182
-183     ; now, read from GPU register IO port, which is cursor register (higher 4 bit)
-184     mov         dx,         GPU_INDEXED_REG_IO
-185     in          al,         dx
-186
-187     mov         ah,         al
-188
-189     ; now, point the GPU register index to the cursor register (lower 4 bit)
-190     mov         dx,         GPU_REGISTER_INDEX
-191     mov         al,         GPU_CURSOR_L8_BIT
-192     out         dx,         al
-193
-194     ; now, read from GPU register IO port, which is cursor register (lower 4 bit)
-195     mov         dx,         GPU_INDEXED_REG_IO
-196     in          al,         dx
-197
-198     pop         dx
-199     ret
-200
-201 set_cursor: ; set_cursor(ax)
-202     push        dx
-203     push        bx
-204
-205     mov         bx,         ax              ; save ax to bx
-206
-207     ; now, point the GPU register index to the cursor register (higher 4 bit)
-208     mov         dx,         GPU_REGISTER_INDEX
-209     mov         al,         GPU_CURSOR_H8_BIT
-210     out         dx,         al
-211
-212     ; now, read from GPU register IO port, which is cursor register (higher 4 bit)
-213     mov         dx,         GPU_INDEXED_REG_IO
-214     mov         al,         bh
-215     out         dx,         al
-216
-217     ; now, point the GPU register index to the cursor register (lower 4 bit)
-218     mov         dx,         GPU_REGISTER_INDEX
-219     mov         al,         GPU_CURSOR_L8_BIT
-220     out         dx,         al
-221
-222     ; now, read from GPU register IO port, which is cursor register (lower 4 bit)
-223     mov         dx,         GPU_INDEXED_REG_IO
-224     mov         al,         bl
-225     out         dx,         al
-226
-227     pop         bx
-228     pop         dx
-229     ret
-230
-231 segment _code_tail align=16
-232 _code_end:
-233 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-234
-235 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-236 segment _data_head align=16
-237 _data_start:
-238
-239 segment data align=16 vstart=0
-240 msg:
-241     db "Bill Gates is the most famous and the world renowned genius of all time.", 0x0A
-242     db "Some of his famous and absolutely correct quotes are as follwing:", 0x0A
-243     db "640 KB [of memory] ought to be enough for anybody.", 0x0A ; yeah this aged well
-244     db "No one will need more than 637 kilobytes of memory for a personal computer.", 0x0A
-245     ; yes, and he still uses a 637 KB memory computer
-246     db "Windows Isn't for Everyone.", 0x0A ; He said that CLI is for business workers. Well, I don't think so.
-247     db "We Always Overestimate the Change That Will Occur in the Next 2 Years and Underestimate "
-248     db "the Change That Will Occur in the Next 10", 0x0A
-249     ; the last two years Microsoft bought OpenAI and basically slapped everything with it, including github
-250     db "And, we have Steve Jobs being an absolute God under his cult Apple. And here is his, "
-251     db "again, absolutely correct statements:", 0x0A
-252     db "People don't know what they want until you show it to them.", 0x0A ; oh no please I don't want it
-253     db "I'm not going to spend my life trying to turn a wooden nickel(bad products) "
-254     db "into a silver one(good one, by his standard).", 0x0A ; he did exactly that
-255     db "We have always been shameless about stealing great ideas.", 0x0A ; lmao
-256     db "I'm an artist. I'm a person who likes to create.", 0x0A ; lmfao
-257     db "And we have Linus Torvalds, God of Enternity, if you will:", 0x0A
-258     db "No One Cares About Your Fancy Interface!", 0x0A ; maybe that why Linux has trash GUI?
-259     db "I Don't Care About You!", 0x0A ; well that's warm, really a big fan when the programmers don't give a shit about their end user
-260     db "Microkernels are a joke!", 0x0A ; yeah this aged so well lmao
-261     db "If you don't like the way Linux works, you're free to fork it!", 0x0A ; or just use *BSD, it's much more consistent and it actually gives a shit
-262     db "You're Stupid!", 0x0A ; another heart warming statement from God. Mind you, heed that!
-263     db "Security patches are annoying!", 0x0A ; and is this why major cooperations tend to use *BSD?
-264     db "We don't need fancy IDEs, just a good text editor!", 0x0A ; in another way, he needs fancy IDEs that looks like a text editor
-265     db "The cloud is just somebody else's computer.", 0x00 ; yeah and no, and I don't deploy my products on mailing lists
-266 segment _data_tail align=16
-267 _data_end:
-268 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-269
-270 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-271 segment _stack_reserved align=16
-272 _stack_start:
-273     resb 0x1FF
-274 _stack_end:
-275 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-276
-277 segment tail align=16
-278 _program_end:
-279     ; this is just used to fill the parts not in the alignment with 0
-280     times 16 db 0
 ```
 
 ---

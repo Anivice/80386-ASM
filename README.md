@@ -24,6 +24,9 @@ a tutorial, I'm not even kidding here).
 - ### [Chapter 3.4: Memory Addressing (And Some Other Notes)](documentation/3.4_memory_addressing.md)
   > Intel 80386 real mode memory addressing.
 
+### [Chapter 4: Disk Operations and Program Relocation](documentation/4_loading_program.md)
+> IDE hard disk read using LBA28, load program larger than 512 bytes and relocate it in memory.
+
 ---
 
 ## Why 80386 When RISCV64, AARCH64, and AMD64(x86_64) are the Dominant Architecture Now?

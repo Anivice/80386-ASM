@@ -175,23 +175,23 @@ _entry_point: ; _entry_point()
 get_cursor: ; get_cursor()->ax
     push        dx
 
-    ; now, point the GPU register index to the cursor register (higher 4 bit)
+    ; now, point the GPU register index to the cursor register (higher 8 bit)
     mov         dx,         GPU_REGISTER_INDEX
     mov         al,         GPU_CURSOR_H8_BIT
     out         dx,         al
 
-    ; now, read from GPU register IO port, which is cursor register (higher 4 bit)
+    ; now, read from GPU register IO port, which is cursor register (higher 8 bit)
     mov         dx,         GPU_INDEXED_REG_IO
     in          al,         dx
 
     mov         ah,         al
 
-    ; now, point the GPU register index to the cursor register (lower 4 bit)
+    ; now, point the GPU register index to the cursor register (lower 8 bit)
     mov         dx,         GPU_REGISTER_INDEX
     mov         al,         GPU_CURSOR_L8_BIT
     out         dx,         al
 
-    ; now, read from GPU register IO port, which is cursor register (lower 4 bit)
+    ; now, read from GPU register IO port, which is cursor register (lower 8 bit)
     mov         dx,         GPU_INDEXED_REG_IO
     in          al,         dx
 
@@ -204,22 +204,22 @@ set_cursor: ; set_cursor(ax)
 
     mov         bx,         ax              ; save ax to bx
 
-    ; now, point the GPU register index to the cursor register (higher 4 bit)
+    ; now, point the GPU register index to the cursor register (higher 8 bit)
     mov         dx,         GPU_REGISTER_INDEX
     mov         al,         GPU_CURSOR_H8_BIT
     out         dx,         al
 
-    ; now, read from GPU register IO port, which is cursor register (higher 4 bit)
+    ; now, read from GPU register IO port, which is cursor register (higher 8 bit)
     mov         dx,         GPU_INDEXED_REG_IO
     mov         al,         bh
     out         dx,         al
 
-    ; now, point the GPU register index to the cursor register (lower 4 bit)
+    ; now, point the GPU register index to the cursor register (lower 8 bit)
     mov         dx,         GPU_REGISTER_INDEX
     mov         al,         GPU_CURSOR_L8_BIT
     out         dx,         al
 
-    ; now, read from GPU register IO port, which is cursor register (lower 4 bit)
+    ; now, read from GPU register IO port, which is cursor register (lower 8 bit)
     mov         dx,         GPU_INDEXED_REG_IO
     mov         al,         bl
     out         dx,         al
