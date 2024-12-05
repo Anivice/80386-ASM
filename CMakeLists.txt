@@ -41,3 +41,13 @@ create_virtual_disk_from_bin(chapter4.program_loader.vdi VirtualBoxDiskFormat ch
 
 add_qemu_emulation_target(boot_chapter4_loader chapter4.prg.loader.bin)
 add_qemu_debug_target(debug_chapter4_loader chapter4.prg.loader.bin)
+
+add_singular_binary_target(chapter5.clock chapter5.clock.bin src_for_doc/chapter5.clock.asm)
+concatenate_files(
+        chapter5.clock.img
+        chapter4.loader.bin chapter5.clock.bin)
+create_virtual_disk_from_bin(chapter5.clock.vdi VirtualBoxDiskFormat chapter5.clock.img)
+add_qemu_emulation_target(boot_chapter5_clock chapter5.clock.img)
+add_qemu_debug_target(debug_chapter5_clock chapter5.clock.img)
+add_qemu_custom_coreboot_emulation_target(coreboot_chapter5_clock chapter5.clock.vdi)
+add_qemu_custom_seabios_emulation_target(seabios_chapter5_clock chapter5.clock.vdi)

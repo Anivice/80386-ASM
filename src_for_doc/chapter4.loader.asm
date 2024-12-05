@@ -127,11 +127,13 @@ start:
     add         ax,                     di
     shr         ax,                     4
     add         ax,                     0x07C0
-    mov         ss,                     ax
+    mov         cx,                     ax
 
     mov word    ax,                     [es:di + 12]                    ; stack segmentation starting address
     mov word    bx,                     [es:di + 14]                    ; stack segmentation end address
     sub         bx,                     ax
+    ; stack protection procedure in case of an interruption
+    mov         ss,                     cx
     mov         sp,                     bx
 
     ; set up data segmentation

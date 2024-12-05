@@ -33,21 +33,27 @@ putc:   ; putc(al=character)
     ; check if we have reached the bottom of the screen
     ; when that happens, we first, need to move the content on the screen upwards one line (+80 characters)
     ; first instance: last line and attempt a newline (ax >= 1920)
-    cmp         ax,         1920
-    jl          .end_of_scrolling           ; skip when ax < 1920
-    ; now ax >= 1920, skip if bl != 0x0A
-    cmp         bl,         0x0A
-    jne         .end_of_scrolling           ; skip if not a newline
-    ; bl == 0x0A, ax >= 1920
-    jmp         .start_of_scrolling         ; start scrolling
-    jmp         .end_of_scrolling           ; jump to skip the following condition check
+    ; check if (ax >= 1920 AND bl == 0x0A) OR (ax == 1999)
 
-    ; second instance: last position
-    cmp         ax,         1999            ; compare if cursor is at the end of the screen
-    jne         .end_of_scrolling           ; skip if not
+    ; First Condition: ax >= 1920
+    cmp         ax,         1920
+    jl          .check_second_condition ; If ax < 1920, skip to second condition
+
+    ; ax >= 1920, now check if bl == 0x0A
+    cmp         bl,         0x0A
+    jne         .check_second_condition ; If bl != 0x0A, skip to second condition
+
+    ; Both conditions met: ax >= 1920 AND bl == 0x0A
+    jmp         .start_of_scrolling     ; Jump to start scrolling
+
+    ; Second Condition: ax == 1999
+    .check_second_condition:
+        cmp     ax,         1999
+        jne     .end_of_scrolling       ; If ax != 1999, jump to end_of_scrolling
+
+    ; at here, condition met: ax == 1999
 
     .start_of_scrolling:
-
         ; destination:
         mov         cx,         0xB800
         mov         es,         cx
@@ -79,7 +85,7 @@ putc:   ; putc(al=character)
         cmp         bl,         0x0A
         je          .set_cursor_with_bx_equals_to_0x0A
 
-        mov         ax,         1920            ; line start at the bottom of the screen
+        mov         ax,         1919            ; line start at the bottom of the screen
         call        set_cursor                  ; set cursor
         jmp         .end_of_scrolling           ; end scrolling handling, continue to put the character
 

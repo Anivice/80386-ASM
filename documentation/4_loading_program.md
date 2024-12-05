@@ -20,7 +20,7 @@ But first, we need to know how to operate IDE/ATA Hard Disks using I/O Ports on 
 ## Read From a Disk
 
 Line 1 to 5 starts as usual, we define offset to be `0x7C00`, starting as 16bit mode, and jump to start label.
-But, right after that, we defined the following constants:
+But right after that, we defined the following constants:
 
 ```nasm
   6  IO_PORT                 equ 0x1F0
