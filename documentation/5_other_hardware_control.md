@@ -185,18 +185,6 @@ One is called packed BCD.
 Packed BCD uses four bits for each digit, meaning 89 is `1000 1001`.
 Another is unpacked BCD, meaning eight bits for one digit, and higher four digits are not used. 
 
-<style>
-    .custom-table {
-        width: 150px;
-        border-collapse: collapse;
-        font-size: 10px
-    }
-
-    .custom-table td, .custom-table th { 
-        text-align: center; 
-    }
-</style>
-
 > Information: A really easy way to convert digits between base 10/16 to binary is
 > what my professor would call "4-bit translation."
 > Basically, you write down four digits: `8 4 2 1`, and set the corresponding bit to 1 to match your result.
