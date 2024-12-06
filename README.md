@@ -25,7 +25,12 @@ a tutorial, I'm not even kidding here).
   > Intel 80386 real mode memory addressing.
 
 ### [Chapter 4: Disk Operations and Program Relocation](documentation/4_loading_program.md)
-> IDE hard disk read using LBA28, load program larger than 512 bytes and relocate it in memory.
+> IDE hard disk read using LBA28, load a program larger than 512 bytes and relocate it in memory.
+
+### [Chapter 5: Interrupt](documentation/5_other_hardware_control.md)
+> General discussion of hardware and software interrupt.
+> Illustrated the use of Real Time Clock interrupt to write a clock.
+> And a small typing software demonstrating the use of BIOS software interrupt calls.
 
 ---
 

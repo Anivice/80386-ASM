@@ -18,6 +18,9 @@ RTC_REGISTER_DAY        equ 0x07
 RTC_REGISTER_MON        equ 0x08
 RTC_REGISTER_YER        equ 0x09
 I8259_IMR               equ 0xA1
+MASTER_8259             equ 0x20
+SLAVE_8259              equ 0xA0
+EOI                     equ 0x20
 
 segment head align=16 vstart=0
     dw _program_end                         ; program length                                    +0
@@ -452,14 +455,14 @@ int_0x70_handler:
     call        set_cursor
 
     ; Clear the RTC interrupt flags by reading Register C
-    mov         al,         RTC_REGISTER_C
-    out         RTC_REGISTER_INDEX, al      ; Select Register C, and enable NMI
-    in          al,         RTC_REGISTER_IO ; Read Register C to clear flags
+    mov         al,                 RTC_REGISTER_C
+    out         RTC_REGISTER_INDEX, al                  ; Select Register C, and enable NMI
+    in          al,                 RTC_REGISTER_IO     ; Read Register C to clear flags
 
     ; Send End of Interrupt (EOI) signals
-    mov         al,         0x20
-    out         0xa0,       al              ; EOI to slave PIC
-    out         0x20,       al              ; EOI to master PIC
+    mov         al,                 EOI
+    out         SLAVE_8259,         al                  ; EOI to slave PIC
+    out         MASTER_8259,        al                  ; EOI to master PIC
 
     pop         ds
     pop         es

@@ -16,7 +16,7 @@ function(add_qemu_emulation_target
         BOOT_SECTOR_FILE_NAME)
     add_custom_target(${TARGET_NAME}
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
-            COMMAND ${QEMU_EXECUTABLE} ${QEMU_EMULATION_EXTRA_ARGS} -smp 1 -cpu 486 -audio alsa,model=sb16
+            COMMAND ${QEMU_EXECUTABLE} ${QEMU_EMULATION_EXTRA_ARGS} -smp 1 -cpu 486
                                         -drive format=raw,file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
                                         -m 32M -rtc base=localtime
             USES_TERMINAL
@@ -29,7 +29,7 @@ function(add_qemu_custom_coreboot_emulation_target
         BOOT_SECTOR_FILE_NAME)
     add_custom_target(${TARGET_NAME}
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
-            COMMAND ${QEMU_EXECUTABLE} ${QEMU_EMULATION_EXTRA_ARGS} -smp 1 -cpu pentium3 -audio alsa,model=sb16
+            COMMAND ${QEMU_EXECUTABLE} ${QEMU_EMULATION_EXTRA_ARGS} -smp 1 -cpu pentium3
                         -drive file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
                         -bios ${CMAKE_SOURCE_DIR}/firmware/coreboot.rom
                         -m 32M -serial stdio -rtc base=localtime
@@ -43,7 +43,7 @@ function(add_qemu_custom_seabios_emulation_target
         BOOT_SECTOR_FILE_NAME)
     add_custom_target(${TARGET_NAME}
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
-            COMMAND ${QEMU_EXECUTABLE} ${QEMU_EMULATION_EXTRA_ARGS} -smp 1 -cpu pentium3 -audio alsa,model=sb16
+            COMMAND ${QEMU_EXECUTABLE} ${QEMU_EMULATION_EXTRA_ARGS} -smp 1 -cpu 486
                         -drive file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
                         -bios ${CMAKE_SOURCE_DIR}/firmware/seabios.rom
                         -m 32M -rtc base=localtime
@@ -57,7 +57,7 @@ function(add_qemu_debug_target
         BOOT_SECTOR_FILE_NAME)
     add_custom_target(${TARGET_NAME}
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
-            COMMAND ${QEMU_EXECUTABLE} ${QEMU_DEBUG_EXTRA_ARGS} -smp 1 -cpu 486 -audio alsa,model=sb16
+            COMMAND ${QEMU_EXECUTABLE} ${QEMU_DEBUG_EXTRA_ARGS} -smp 1 -cpu 486
                                         -drive format=raw,file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
                                         -m 32M -s -S -monitor stdio -d int,in_asm,cpu,exec,in_asm -rtc base=localtime
                                         -D qemu_debug_${TARGET_NAME}.log

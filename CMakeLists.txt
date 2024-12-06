@@ -35,19 +35,28 @@ add_singular_binary_target(
         chapter4.user.bin
         src_for_doc/chapter4.user.asm)
 concatenate_files(
-        chapter4.prg.loader.bin
+        chapter4.loader.img
         chapter4.loader.bin chapter4.user.bin)
-create_virtual_disk_from_bin(chapter4.program_loader.vdi VirtualBoxDiskFormat chapter4.prg.loader.bin)
+create_virtual_disk_from_bin(chapter4.loader.vdi VirtualBoxDiskFormat chapter4.loader.img)
 
-add_qemu_emulation_target(boot_chapter4_loader chapter4.prg.loader.bin)
-add_qemu_debug_target(debug_chapter4_loader chapter4.prg.loader.bin)
+add_qemu_emulation_target(boot_chapter4_loader chapter4.loader.img)
+add_qemu_debug_target(debug_chapter4_loader chapter4.loader.img)
 
 add_singular_binary_target(chapter5.clock chapter5.clock.bin src_for_doc/chapter5.clock.asm)
 concatenate_files(
         chapter5.clock.img
         chapter4.loader.bin chapter5.clock.bin)
+
 create_virtual_disk_from_bin(chapter5.clock.vdi VirtualBoxDiskFormat chapter5.clock.img)
 add_qemu_emulation_target(boot_chapter5_clock chapter5.clock.img)
 add_qemu_debug_target(debug_chapter5_clock chapter5.clock.img)
 add_qemu_custom_coreboot_emulation_target(coreboot_chapter5_clock chapter5.clock.vdi)
 add_qemu_custom_seabios_emulation_target(seabios_chapter5_clock chapter5.clock.vdi)
+
+add_singular_binary_target(chapter5.biosint chapter5.biosint.bin src_for_doc/chapter5.biosint.asm)
+concatenate_files(
+        chapter5.biosint.img
+        chapter4.loader.bin chapter5.biosint.bin)
+create_virtual_disk_from_bin(chapter5.biosint.vdi VirtualBoxDiskFormat chapter5.biosint.img)
+add_qemu_custom_coreboot_emulation_target(boot_chapter5_biosint chapter5.biosint.vdi)
+add_qemu_debug_target(debug_chapter5_biosint chapter5.biosint.img)
