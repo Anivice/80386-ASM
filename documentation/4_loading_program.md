@@ -43,7 +43,9 @@ Different from the registers inside CPU, these ports, or pin, connects to extern
 We can have a look with the picture of an old 80386 CPU silicon die
 (a piece of flat, usually square, silicon with circuits on it)
 taken by Ken Shirriff, who has vast knowledge on these old school pieces of hardware:
-![CPU DIE](die-labeled-w-text.png)
+<div style="text-align: center;">
+    <img src="./die-labeled-w-text.png" alt="Description" width="1024">
+</div>
 
 The bond wire provides a connection between the silicon die and the external hardware,
 and usually exposes itself as a pin (golden spike) outside the chip package.
@@ -160,14 +162,14 @@ LBA mode, read from IDE Master disk.
 > A bit of information here: When you config the IDE disks, you actually have to wire two pins on the disk
 > to tell the controller who is Master and who is Slave.
 > There are these small devices called jump wires, as shown below:
-> 
-> ![Jump Wire](JumpWire.png)
-> 
+>
+> <img src="./JumpWire.png" alt="Description" height="320">
+>
 > These are female-female jump wires, connecting two male pins.
 > 
-> ![Disk Master Slave](disk-master-and-slave.png)
-> ![Disk Master Slave Side](disk-master-and-slave-side-view.png)
-> 
+> <img src="./disk-master-and-slave.png" alt="Description" height="320">
+> <img src="./disk-master-and-slave-side-view.png" alt="Description" height="320">
+>
 > The pins on the disk are two male pins (pins that poke out).
 > ~~(On a total side note, whoever came up with these names is a real legend.)~~
 

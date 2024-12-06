@@ -276,29 +276,25 @@ _entry_point: ; _entry_point()
     call        print
 
     ; Access RTC Register B
-    mov         al,         RTC_REGISTER_B
-    or          al,         0x80            ; disable NMI
-    out         RTC_REGISTER_INDEX,     al  ; select RTC register B
-    mov         al,         00010010B       ; disable periodic interruption, interruption after update, and BCD, 24 hour time
+    mov         al,                     RTC_REGISTER_B
+    or          al,                     0x80                ; disable NMI
+    out         RTC_REGISTER_INDEX,     al                  ; select RTC register B
+    mov         al,                     00010010B           ; disable periodic interruption, interruption after update,
+                                                            ; and BCD, 24 hour time
     out         RTC_REGISTER_IO,        al
 
     ; Access RTC Register C, so that we clear all interruption flags
-    mov         al,         RTC_REGISTER_C  ; we actually want to resume NMI here
-    out         RTC_REGISTER_INDEX,     al  ; NMI is now resumed
-    in          al,         RTC_REGISTER_IO
+    mov         al,                     RTC_REGISTER_C      ; we actually want to resume NMI here
+    out         RTC_REGISTER_INDEX,     al                  ; NMI is now resumed
+    in          al,                     RTC_REGISTER_IO
 
-    in          al,         I8259_IMR       ; read from 8259
-    and         al,         0xFE            ; 0xFE is 0x11111110, clear RTC port so we can receive RTC interruptions
-    out         I8259_IMR,  al              ; write back
+    in          al,                     I8259_IMR           ; read from 8259
+    and         al,                     0xFE                ; 0xFE is 0x11111110, clear RTC port so we can receive RTC interruptions
+    out         I8259_IMR,              al                  ; write back
 
     ; print done
     mov         si,         done_msg
     call        print
-
-    ; set up correct cursor starting point
-    call        get_cursor
-    add         ax,         19
-    call        set_cursor
 
     ; enable interruption
     sti
@@ -312,7 +308,6 @@ _entry_point: ; _entry_point()
     pop         es
     popa
     retf                                    ; since we did a far call, we use a far return
-
 
 read_reg_into_al: ; read_reg_into_al(al=index)
     xor         ah,         ah
@@ -332,7 +327,7 @@ bcd_to_ascii: ; bcd_to_ascii(al=packed bcd)=>ax
 
     ret
 
-output_digits: ; (ah=digit,al=digit)
+output_two_digits_from_ax: ; (ah=digit,al=digit)
     pusha
 
     mov byte    [_display_buffer],      ah
@@ -354,13 +349,6 @@ print_single_char: ; print_single_char(al=char)
     call        print
 
     pop         si
-    ret
-
-print_endl:
-    push        ax
-    mov         al,         0x0A
-    call        print_single_char
-    pop         ax
     ret
 
 print_dash:
@@ -388,10 +376,6 @@ int_0x70_handler:
     pusha
     push        es
     push        ds
-
-    call        get_cursor
-    sub         ax,         19
-    call        set_cursor
 
     mov         al,         RTC_REGISTER_SEC
     call        read_reg_into_al
@@ -426,45 +410,46 @@ int_0x70_handler:
 
     pop         ax
     call        bcd_to_ascii
-    call        output_digits
+    call        output_two_digits_from_ax
 
     call        print_dash
 
     ; print month
     pop         ax
     call        bcd_to_ascii
-    call        output_digits
+    call        output_two_digits_from_ax
 
     call        print_dash
 
     ; print day
     pop         ax
     call        bcd_to_ascii
-    call        output_digits
+    call        output_two_digits_from_ax
 
     call        print_space
 
     ; print hour
     pop         ax
     call        bcd_to_ascii
-    call        output_digits
+    call        output_two_digits_from_ax
 
     call        print_col
 
     ; print minute
     pop         ax
     call        bcd_to_ascii
-    call        output_digits
+    call        output_two_digits_from_ax
 
     call        print_col
 
     ; print second
     pop         ax
     call        bcd_to_ascii
-    call        output_digits
+    call        output_two_digits_from_ax
 
-    ; print '\n'
-;    call        print_endl
+    call        get_cursor
+    sub         ax,         19
+    call        set_cursor
 
     ; Clear the RTC interrupt flags by reading Register C
     mov         al,         RTC_REGISTER_C

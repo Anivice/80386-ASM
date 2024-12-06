@@ -44,7 +44,7 @@ The difference between a SSD and an HDD is their internal structures.
 Below is an image of the internal structure of a hard disk:
 
 <div style="text-align: center;">
-  <img src="./hard-drive.png" alt="HDD Internal Structure">
+  <img src="./hard-drive.png" alt="HDD Internal Structure" width="1600">
 </div>
 
 As illustrated above, a hard disk consists of one or more metal disks mounted on a motor.

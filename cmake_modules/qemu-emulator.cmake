@@ -18,7 +18,7 @@ function(add_qemu_emulation_target
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
             COMMAND ${QEMU_EXECUTABLE} ${QEMU_EMULATION_EXTRA_ARGS} -smp 1 -cpu 486 -audio alsa,model=sb16
                                         -drive format=raw,file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
-                                        -m 32M
+                                        -m 32M -rtc base=localtime
             USES_TERMINAL
             COMMENT "Starting emulation for ${BOOT_SECTOR_FILE_NAME}..."
     )
@@ -32,7 +32,7 @@ function(add_qemu_custom_coreboot_emulation_target
             COMMAND ${QEMU_EXECUTABLE} ${QEMU_EMULATION_EXTRA_ARGS} -smp 1 -cpu pentium3 -audio alsa,model=sb16
                         -drive file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
                         -bios ${CMAKE_SOURCE_DIR}/firmware/coreboot.rom
-                        -m 32M -serial stdio
+                        -m 32M -serial stdio -rtc base=localtime
             USES_TERMINAL
             COMMENT "Starting emulation for ${BOOT_SECTOR_FILE_NAME} using Core boot..."
     )
@@ -46,7 +46,7 @@ function(add_qemu_custom_seabios_emulation_target
             COMMAND ${QEMU_EXECUTABLE} ${QEMU_EMULATION_EXTRA_ARGS} -smp 1 -cpu pentium3 -audio alsa,model=sb16
                         -drive file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
                         -bios ${CMAKE_SOURCE_DIR}/firmware/seabios.rom
-                        -m 32M
+                        -m 32M -rtc base=localtime
             USES_TERMINAL
             COMMENT "Starting emulation for ${BOOT_SECTOR_FILE_NAME} using Sea BIOS..."
     )
@@ -59,7 +59,7 @@ function(add_qemu_debug_target
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
             COMMAND ${QEMU_EXECUTABLE} ${QEMU_DEBUG_EXTRA_ARGS} -smp 1 -cpu 486 -audio alsa,model=sb16
                                         -drive format=raw,file=${CMAKE_CURRENT_BINARY_DIR}/${BOOT_SECTOR_FILE_NAME}
-                                        -m 32M -s -S -monitor stdio -d int,in_asm,cpu,exec,in_asm
+                                        -m 32M -s -S -monitor stdio -d int,in_asm,cpu,exec,in_asm -rtc base=localtime
                                         -D qemu_debug_${TARGET_NAME}.log
             USES_TERMINAL
             COMMENT "Starting debug emulation for ${BOOT_SECTOR_FILE_NAME}. Emulation will start once gdb connects."
