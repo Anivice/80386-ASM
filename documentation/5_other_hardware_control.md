@@ -106,7 +106,7 @@ like AHCI/RAID controller settings and default boot order.
 RTC will update CMOS every second.
 
 To access CMOS, we need to first, specify the offset we want to read by index port `0x70` and `0x74`,
-and read/write using port `x071` or `0x75`.
+and read/write using port `0x71` or `0x75`.
 
 | Offset | CMOS RAM Content |
 |--------|------------------|
