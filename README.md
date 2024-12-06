@@ -181,7 +181,15 @@ X11 working inside a Wayland display manager is impossible,
 and Xwayland's poor compatibility "just works."
 <img src="documentation/it_just_works.jpg" alt="Description" height="25" />
 
-> And unlike Microsoft Windows,
+Fourth, BOCHS has poor timing sync technology.
+The timing sync relies on an old technology: IPS, or Instruction Per Second.
+Let's put it in another way: frame sync.
+Remember these old PS3 games, like Demon's Souls?
+If you apply a 60 FPS patch on it in an emulator, the game is actually running 2x faster than it should.
+The same goes here: if I set IPS to native speed as my CPU, RTC is actually running at a crazy speed.
+My RTC updated across the whole year in mere seconds, even after the RTC realtime sync option applied.
+
+> Unlike Microsoft Windows,
 > where backward compatibility is often considered to a point that we can still execute 32bit programs from 1995,
 > Linux is a system where source code from 2015 cannot be compiled on the latest distributions,
 > because GCC is moving forward so fast
