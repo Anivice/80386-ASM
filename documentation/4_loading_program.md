@@ -796,7 +796,7 @@ We use I/O port to access and manipulate GPU cursor position:
 There's really nothing spacial to it, except for the meaning of the register.
 `GPU_CURSOR_L8_BIT` and `GPU_CURSOR_H8_BIT` are the lower and higher 8-bit of cursor register.
 The register contains the linear address of the cursor, meaning, for an 80x25 VGA analog display,
-the register has the range of $ [0, 1999] $ ($ [0, 80 \times 25–1] $).
+the register has the range of $[0, 1999]$ ($[0, 80 \times 25–1]$).
 
 Now, the following code is very, well, not modular like. So I will again, draw a diagram of the process of `putc`.
 
