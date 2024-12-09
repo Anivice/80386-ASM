@@ -104,9 +104,9 @@ Detailed CMake instructions are beyond its scope.
     </td>
   </tr>
 
-  <!-- qemu-emulator.cmake -->
+  <!-- qemu_emulator.cmake -->
   <tr>
-    <td rowspan="5">qemu-emulator.cmake</td>
+    <td rowspan="5">qemu_emulator.cmake</td>
     <td><code>add_qemu_emulation_target(TARGET_NAME, BOOT_SECTOR_FILE_NAME)</code></td>
     <td>
       Links a boot sector to QEMU for emulation.<br>
@@ -188,31 +188,3 @@ Remember these old PS3 games, like Demon's Souls?
 If you apply a 60 FPS patch on it in an emulator, the game is actually running 2x faster than it should.
 The same goes here: if I set IPS to native speed as my CPU, RTC is actually running at a crazy speed.
 My RTC updated across the whole year in mere seconds, even after the RTC realtime sync option applied.
-
-> Unlike Microsoft Windows,
-> where backward compatibility is often considered to a point that we can still execute 32bit programs from 1995,
-> Linux is a system where source code from 2015 cannot be compiled on the latest distributions,
-> because GCC is moving forward so fast
-> (so much that NVIDIA's nvcc can't even roll out versions fast enough to match its speed)
-> and deprecating everything in the process.
-> (And on a total side note,
-> GCC is often criticized for its slow rolling speed so Linux created `linux-vdso.so` to bypass glibc.
-> Meaning that, well, binary distribution might not be able to offset the differences across different distributions).
-> And very unfortunately, in Linux we always distribute programs in source code because we'd like to ensure
-> we cannot use it 10 years after.
-> And that, my friend, is just user mode.
-> Linux kernel offers no backward compatibility whatsoever.
-> Never trust a book telling you how to write a kernel module for Linux.
-> If you really want to experiment, download the exact same version used by the book author.
-> And when I say the exact same version, I mean the exact same git checksum, if you can find it, that is.
-> Now, can you finally understand why we need microkernels and Docker containers for Linux
-> and why big tech co-operations sometimes prefer *BSD whose vendor support actually drops even more drastically?
-> Obviously, Linux cannot provide a consistent system environment, even when compared to Microsoft Windows whose users
-> ALWAYS cry over any small tiny changes.
-> Imagine the baby crying when a Ubuntu update suddenly breaks everything on your PC
-> and makes you to force rollback using snapshots and LiveCDs,
-> if you are smart enough to install your Ubuntu on btrfs and create a system-wide snapshot before any major updates,
-> of course.
-> And I'd really like to troll them with "skill issues" when their works are permanently lost due to this blind trust.
-> Remember, Linux is a free software, and free software offers
-> "NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE" (Free Software Foundation, 1992).

@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.29)
 
 include(${CMAKE_CURRENT_LIST_DIR}/check_for_program_availability.cmake)
-check_for_program_availability(NASM_EXECUTABLE nasm)
-check_for_program_availability(DD_EXECUTABLE dd)
-check_for_program_availability(CAT_EXECUTABLE cat)
-check_for_program_availability(SH_EXECUTABLE sh)
+check_for_program_availability(NASM_EXECUTABLE      nasm)
+check_for_program_availability(DD_EXECUTABLE        dd)
+check_for_program_availability(CAT_EXECUTABLE       cat)
+check_for_program_availability(SH_EXECUTABLE        sh)
+check_for_program_availability(OBJCOPY_EXECUTABLE   objcopy)
+check_for_program_availability(CP_EXECUTABLE        cp)
+check_for_program_availability(STRIP_EXECUTABLE     strip)
+set(CMAKE_C_FLAGS "-m32 -g3 -O0 -nostdlib -nostartfiles -nodefaultlibs -ffreestanding -fno-builtin")
 
 function(add_singular_binary_target
         TARGET_NAME         # Target name that the build system referred to
@@ -24,6 +28,36 @@ function(add_singular_binary_target
     add_custom_target(${TARGET_NAME} ALL
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_FILENAME}
             COMMENT "Building binary target ${TARGET_NAME} (Singular mode)"
+    )
+endfunction()
+
+function(add_singular_c_target
+        TARGET_NAME         # Target name that the build system referred to
+        OUTPUT_BIN          # output filename for the binary file
+        OUTPUT_ELF32        # output filename for the elf file
+        INPUT_FILENAME      # input file (singular) for the binary
+)
+    add_library(${TARGET_NAME}.lib SHARED ${INPUT_FILENAME})
+
+    # Generate binary file from assembly source
+    add_custom_command(
+            OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_BIN} ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_ELF32}
+            COMMAND ${CP_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/lib${TARGET_NAME}.lib.so ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_ELF32}
+            COMMAND ${STRIP_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/lib${TARGET_NAME}.lib.so
+            COMMAND ${OBJCOPY_EXECUTABLE}
+                    -O binary
+                    --remove-section=.note.gnu.build-id --remove-section=.note.gnu.property
+                    --remove-section=.gnu.hash --remove-section=.dynsym --remove-section=.dynstr --remove-section=.eh_frame_hdr
+                    --remove-section=.eh_frame --remove-section=.dynamic --remove-section=.got.plt --remove-section=.comment
+                    ${CMAKE_CURRENT_BINARY_DIR}/lib${TARGET_NAME}.lib.so ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_BIN}
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${INPUT_FILENAME} ${TARGET_NAME}.lib
+            COMMENT "Assembling ${INPUT_FILENAME} with NASM (Singular mode)"
+    )
+
+    # Create a target to manage dependencies and build
+    add_custom_target(${TARGET_NAME} ALL
+            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_BIN} ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_ELF32}
+            COMMENT "Building binary and ELF target ${TARGET_NAME} (Dual mode)"
     )
 endfunction()
 
