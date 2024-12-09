@@ -8,7 +8,7 @@ check_for_program_availability(SH_EXECUTABLE        sh)
 check_for_program_availability(OBJCOPY_EXECUTABLE   objcopy)
 check_for_program_availability(CP_EXECUTABLE        cp)
 check_for_program_availability(STRIP_EXECUTABLE     strip)
-set(CMAKE_C_FLAGS "-m32 -g3 -O0 -nostdlib -nostartfiles -nodefaultlibs -ffreestanding -fno-builtin")
+set(CMAKE_C_FLAGS "-m32 -g3 -O0 -nostdlib -nostartfiles -nodefaultlibs -ffreestanding -fno-builtin -fno-pic -no-pie -T ${CMAKE_SOURCE_DIR}/src_for_doc/link.ld")
 
 function(add_singular_binary_target
         TARGET_NAME         # Target name that the build system referred to
@@ -31,6 +31,25 @@ function(add_singular_binary_target
     )
 endfunction()
 
+function(bin2bin_sector_fill
+        BIN_OUT
+        BIN_IN
+)
+    add_custom_command(
+            OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${BIN_OUT}
+            COMMAND ${DD_EXECUTABLE} bs=512 conv=sync,fdatasync iflag=fullblock
+                    if=${CMAKE_CURRENT_BINARY_DIR}/${BIN_IN}
+                    of=${CMAKE_CURRENT_BINARY_DIR}/${BIN_OUT} 2> /dev/null
+            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BIN_IN}
+            COMMENT "Copy binary ${BIN_IN} to be full sector"
+    )
+
+    add_custom_target(b2b_${BIN_OUT} ALL
+            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BIN_OUT}
+            COMMENT "Copy binary ${BIN_IN} to be full sector"
+    )
+endfunction()
+
 function(add_singular_c_target
         TARGET_NAME         # Target name that the build system referred to
         OUTPUT_BIN          # output filename for the binary file
@@ -46,11 +65,9 @@ function(add_singular_c_target
             COMMAND ${STRIP_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/lib${TARGET_NAME}.lib.so
             COMMAND ${OBJCOPY_EXECUTABLE}
                     -O binary
-                    --remove-section=.note.gnu.build-id --remove-section=.note.gnu.property
-                    --remove-section=.gnu.hash --remove-section=.dynsym --remove-section=.dynstr --remove-section=.eh_frame_hdr
-                    --remove-section=.eh_frame --remove-section=.dynamic --remove-section=.got.plt --remove-section=.comment
+                    --only-section=.text
                     ${CMAKE_CURRENT_BINARY_DIR}/lib${TARGET_NAME}.lib.so ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_BIN}
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${INPUT_FILENAME} ${TARGET_NAME}.lib
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${INPUT_FILENAME} ${TARGET_NAME}.lib ${CMAKE_SOURCE_DIR}/src_for_doc/link.ld
             COMMENT "Assembling ${INPUT_FILENAME} with NASM (Singular mode)"
     )
 

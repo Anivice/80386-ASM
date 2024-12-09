@@ -61,6 +61,19 @@ create_virtual_disk_from_bin(chapter5.biosint.vdi VirtualBoxDiskFormat chapter5.
 add_qemu_custom_coreboot_emulation_target(boot_chapter5_biosint chapter5.biosint.vdi)
 add_qemu_debug_target(debug_chapter5_biosint chapter5.biosint.img)
 
-add_qemu_emulation_target(boot_chapter6 chapter6.bin)
-add_qemu_debug_target(debug_chapter6 chapter6.bin)
-add_singular_c_target(chapter6 chapter6.bin chapter6.elf src_for_doc/chapter6.c)
+add_singular_binary_target(
+        chapter6.loader
+        chapter6.loader.bin
+        src_for_doc/chapter6.loader.asm)
+concatenate_files(
+        chapter6.loader.img
+        chapter4.loader.bin chapter6.loader.bin)
+
+add_singular_c_target(chapter6 chapter6.user.bin chapter6.user.elf src_for_doc/chapter6.c)
+bin2bin_sector_fill(chapter6.user.bfilled.bin chapter6.user.bin)
+concatenate_files(
+        chapter6.img
+        chapter6.loader.img chapter6.user.bfilled.bin)
+
+add_qemu_emulation_target(boot_chapter6 chapter6.img)
+add_qemu_debug_target(debug_chapter6 chapter6.img)
