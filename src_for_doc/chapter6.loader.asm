@@ -116,36 +116,9 @@ _entry_point:
     mov     es,     cx
     xor     di,     di
     shl     ax,     8
-    mov     al,     1
+    mov     al,     128
     call    read_disk
 
-    ; ax / 512 => ax, ax % 512 => dx
-    mov  word   ax,         [es:di]     ; program size
-    xor         dx,         dx
-    mov         bx,         512
-    div         bx
-
-    ; if (dx != 0) { ax++ }
-    cmp     dx,     0
-    je      .skip_add_usr
-    inc     ax
-    .skip_add_usr:
-
-    ; skip the sector I just read
-    dec     ax
-
-    ; no sector left
-    cmp     ax,     0
-    je      .skip_rest
-
-    ; now, we read the rest of the program
-    ; this way, max program size is 127 KiB
-    mov     bx,     bp
-    mov     ah,     bl
-    add     di,     512
-    call    read_disk                   ; read_disk(al=sector_count,ah=starting_sector) ==> es:di
-
-    .skip_rest:
     ; we hard coded the wanted parameters here:
     ; here, we calculated the GDT segmentation and offset into ds and bx
     mov     ax,     [gdt_base]
@@ -228,12 +201,12 @@ _entry_point:
                                                 ; 0x00      (Segmentation Base Address, 16-23)
 
     ; # 5
-    mov word [es:bx+40], 0xFFFF    ; Limit Low = 0xFFFF
-    mov word [es:bx+42], 0x0000    ; Base Low = 0x0000
-    mov byte [es:bx+44], 0x00      ; Base Mid = 0x00
-    mov byte [es:bx+45], 0x98      ; Access Byte = 0x98
-    mov byte [es:bx+46], 0xCF      ; Granularity = 0x4F
-    mov byte [es:bx+47], 0x00      ; Base High = 0x00
+    mov word        [es:bx+40],     0xFFFF      ; Limit Low = 0xFFFF
+    mov word        [es:bx+42],     0x0000      ; Base Low = 0x0000
+    mov byte        [es:bx+44],     0x00        ; Base Mid = 0x00
+    mov byte        [es:bx+45],     0x98        ; Access Byte = 0x98
+    mov byte        [es:bx+46],     0xCF        ; Granularity = 0x4F
+    mov byte        [es:bx+47],     0x00        ; Base High = 0x00
 
     mov word        [gdt_boundary], 47          ; boundary = size - 1
 
@@ -268,14 +241,13 @@ _start:
 
     mov             esp,                    0x7C00                  ; right before the boot code
 
-    mov dword       [es:0x00],              0x10002
+    mov dword       [es:0x00],              0x10000
     mov word        [es:0x04],              0000000000101_0_00B
 
     ; far call
     call far        [es:0x00]
 
-    ; !! you should never reach here !!
-    ; halt your system in _start!
+    ; if code exit, we halt the system in case the processor wonders off
 _end:
     hlt
     jmp _end

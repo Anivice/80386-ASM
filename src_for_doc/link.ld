@@ -1,35 +1,45 @@
-/* Define the memory layout */
 SECTIONS
 {
-    /* Set the starting address to 0x0000 */
+    /* Set the starting address */
     . = 0x10000;
 
-    /* Place the .text section first */
+    /* Place the .text section */
     .text :
     {
-        *(.text)           /* Include all .text sections from input files */
+        _text_start = .;       /* Define start of text */
+        *(.text)               /* Include all .text sections */
+        *(.text.*)             /* Include all .text.* sections */
+        _text_end = .;         /* Define end of text */
     }
 
-    /* Place the .rodata section next */
+    /* Place the .rodata section */
     .rodata :
     {
-        *(.rodata)         /* Include all .rodata sections */
+        _rodata_start = .;     /* Define start of rodata */
+        *(.rodata)
+        *(.rodata.*)
+        _rodata_end = .;       /* Define end of rodata */
     }
 
-    /* Then the .data section */
+    /* Place the .data section */
     .data :
     {
-        *(.data)           /* Include all .data sections */
+        _data_start = .;       /* Define start of data */
+        *(.data)
+        *(.data.*)
+        _data_end = .;         /* Define end of data */
     }
 
-    /* Followed by the .bss section */
+    /* Place the .bss section */
     .bss :
     {
-        *(.bss)            /* Include all .bss sections */
+        _bss_start = .;        /* Define start of bss */
+        *(.bss)
         *(COMMON)
+        _bss_end = .;          /* Define end of bss */
     }
 
-    /* Optionally, discard unwanted sections */
+    /* Optionally discard sections */
     /DISCARD/ :
     {
         *(.eh_frame*)
@@ -37,4 +47,8 @@ SECTIONS
         *(.note*)
         *(.dy*)
     }
+
+    /* Define the entry point */
+    . = ALIGN(4);              /* Ensure alignment */
+    _end = .;                  /* Define the end of memory */
 }

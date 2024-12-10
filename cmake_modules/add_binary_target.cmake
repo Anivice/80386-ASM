@@ -8,7 +8,7 @@ check_for_program_availability(SH_EXECUTABLE        sh)
 check_for_program_availability(OBJCOPY_EXECUTABLE   objcopy)
 check_for_program_availability(CP_EXECUTABLE        cp)
 check_for_program_availability(STRIP_EXECUTABLE     strip)
-set(CMAKE_C_FLAGS "-m32 -g3 -O0 -nostdlib -nostartfiles -nodefaultlibs -ffreestanding -fno-builtin -fno-pic -no-pie -T ${CMAKE_SOURCE_DIR}/src_for_doc/link.ld")
+set(CMAKE_C_FLAGS "-m32 -O0 -nostdlib -nostartfiles -nodefaultlibs -ffreestanding -fno-builtin -fno-pic -no-pie -T ${CMAKE_SOURCE_DIR}/src_for_doc/link.ld")
 
 function(add_singular_binary_target
         TARGET_NAME         # Target name that the build system referred to
@@ -37,7 +37,7 @@ function(bin2bin_sector_fill
 )
     add_custom_command(
             OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${BIN_OUT}
-            COMMAND ${DD_EXECUTABLE} bs=512 conv=sync,fdatasync iflag=fullblock
+            COMMAND ${DD_EXECUTABLE} bs=130560 conv=sync,fdatasync iflag=fullblock
                     if=${CMAKE_CURRENT_BINARY_DIR}/${BIN_IN}
                     of=${CMAKE_CURRENT_BINARY_DIR}/${BIN_OUT} 2> /dev/null
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${BIN_IN}
@@ -62,7 +62,6 @@ function(add_singular_c_target
     add_custom_command(
             OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_BIN} ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_ELF32}
             COMMAND ${CP_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/lib${TARGET_NAME}.lib.so ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_ELF32}
-            COMMAND ${STRIP_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/lib${TARGET_NAME}.lib.so
             COMMAND ${OBJCOPY_EXECUTABLE}
                     -O binary
                     --only-section=.text

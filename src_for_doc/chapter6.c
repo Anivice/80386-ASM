@@ -1,8 +1,7 @@
 __asm__(
     ".intel_syntax noprefix                 \n\t"
     "__global_start:                        \n\t"
-    ".short __global_end - __global_start   \n\t"
-    "jmp __start                            \n\t"
+    "jmp __start__                          \n\t"
     ".att_syntax prefix                     \n\t");
 
 #define __INLINE_ASM__(asm)                 \
@@ -17,13 +16,25 @@ __asm__ __volatile__(                       \
         asm                                 \
         "\n\t.att_syntax prefix\n\t")
 
-#define __STARTING_POINT__() __asm__ __volatile__(".intel_syntax noprefix\n\t__start:\n\t")
-#define __END_POINT__() __asm__("__halt_system: hlt\n\tjmp __halt_system\n\t");
+// Since __start__ is not called by C functions, but by far call from loader directly from assembly,
+// we have to override the default exit handling inside C code.
+// The reason why we actually jump to __start__ is to ensure the correct stack segmentation initialization process
+// so that we can obtain the correct variable values in C.
+#define __END_POINT__()                                     \
+    __asm__(                                                \
+        ".intel_syntax noprefix             \n\t"           \
+        "add esp, 0x10                      \n\t"           \
+        "pop ebp                            \n\t"           \
+        "retf                               \n\t"           \
+        ".att_syntax prefix                 \n\t")
+
+static int add(const int a, const int b)
+{
+    return a + b;
+}
 
 static void __start__ (void)
 {
-    __STARTING_POINT__();
-
     __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x00], 'S'");
     __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x02], 'y'");
     __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x04], 's'");
@@ -42,6 +53,8 @@ static void __start__ (void)
     __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x1E], 'b'");
     __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x20], 'i'");
     __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x22], 't'");
+
+    int b = add(1, 3);
 
     __END_POINT__();
 }
