@@ -8,7 +8,7 @@ check_for_program_availability(SH_EXECUTABLE        sh)
 check_for_program_availability(OBJCOPY_EXECUTABLE   objcopy)
 check_for_program_availability(CP_EXECUTABLE        cp)
 check_for_program_availability(STRIP_EXECUTABLE     strip)
-set(CMAKE_C_FLAGS "-m32 -O0 -nostdlib -nostartfiles -nodefaultlibs -ffreestanding -fno-builtin -fno-pic -no-pie -T ${CMAKE_SOURCE_DIR}/src_for_doc/link.ld")
+set(CMAKE_C_FLAGS "-m32 -O0 -mpreferred-stack-boundary=4 -nostdlib -nostartfiles -nodefaultlibs -ffreestanding -fno-builtin -fno-pic -no-pie -T ${CMAKE_SOURCE_DIR}/src_for_doc/link.ld")
 
 function(add_singular_binary_target
         TARGET_NAME         # Target name that the build system referred to
@@ -64,7 +64,7 @@ function(add_singular_c_target
             COMMAND ${CP_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/lib${TARGET_NAME}.lib.so ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_ELF32}
             COMMAND ${OBJCOPY_EXECUTABLE}
                     -O binary
-                    --only-section=.text
+                    --only-section=.text --only-section=.rodata --only-section=.data --only-section=.bss
                     ${CMAKE_CURRENT_BINARY_DIR}/lib${TARGET_NAME}.lib.so ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_BIN}
             DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${INPUT_FILENAME} ${TARGET_NAME}.lib ${CMAKE_SOURCE_DIR}/src_for_doc/link.ld
             COMMENT "Assembling ${INPUT_FILENAME} with NASM (Singular mode)"

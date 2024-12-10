@@ -23,39 +23,42 @@ __asm__ __volatile__(                       \
 #define __END_POINT__()                                     \
     __asm__(                                                \
         ".intel_syntax noprefix             \n\t"           \
-        "add esp, 0x10                      \n\t"           \
-        "pop ebp                            \n\t"           \
-        "retf                               \n\t"           \
+        "__sys_halt: hlt                    \n\t"           \
+        "jmp __sys_halt                     \n\t"           \
         ".att_syntax prefix                 \n\t")
 
-static int add(const int a, const int b)
+static void print_at_loc(const char character, int loc)
 {
-    return a + b;
+    __VOLATILE_INLINE_ASM__("mov ecx, 0x10");
+    __VOLATILE_INLINE_ASM__("mov es, ecx");
+    loc *= 2;
+    __asm__ __volatile__(
+        "mov %0, %%ebx               \n\t"  // Move 'loc' into ebx
+        "mov %1, %%al                \n\t"  // Move 'character' into al
+        "movb %%al, %%es:(%%ebx)     \n\t"  // Store the byte at the location pointed by ebx
+        :
+        : "r"(loc), "r"(character)          // Input operands: loc -> any register, character -> any register
+        : "eax", "ebx", "memory"            // Clobbered registers and memory
+    );
+}
+
+const char * string = "Hello World!";
+
+void * deference(unsigned int label)
+{
+    return (void*)label;
 }
 
 static void __start__ (void)
 {
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x00], 'S'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x02], 'y'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x04], 's'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x06], 't'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x08], 'e'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x0A], 'm'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x0C], ' '");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x0E], 'i'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x10], 's'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x12], ' '");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x14], 'i'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x16], 'n'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x18], ' '");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x1A], '3'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x1C], '2'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x1E], 'b'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x20], 'i'");
-    __VOLATILE_INLINE_ASM__("mov byte ptr [ds:0x22], 't'");
-
-    int b = add(1, 3);
-
+    int i = 0;
+    char c = string[i];
+    unsigned int label = (unsigned int)(void*)string;
+    // while (string[i] != 0)
+    // {
+    //     print_at_loc(string[i], i);
+    //     i++;
+    // }
     __END_POINT__();
 }
 

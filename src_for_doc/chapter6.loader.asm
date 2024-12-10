@@ -160,16 +160,6 @@ _entry_point:
                                                 ; 0x2       (0010, TYPE=0010)
                                                 ; 0x0B      (Segmentation Base Address, 16-23)
 
-    ; Segmentation information:
-    ;     SegBaseAddr: 0x000B8000
-    ;     SegLim: 0x0FFFF, G=0
-    ;     32BitOperands (D/B=1)
-    ;     32BitMode (L=0)
-    ;     SegPresent (P=1)
-    ;     DPL=0
-    ;     UserSeg (S=1)
-    ;     TYPE=--W-
-
     ; # 3
     mov dword       [es:bx+24],    0x00007A00   ; 0x0000    (Segmentation Base Address 0-15)
                                                 ; 0x7A00    (Segmentation Limit 0-15)
@@ -179,16 +169,6 @@ _entry_point:
                                                 ; 0x9       (1001, P=1, DPL=00, S=1)
                                                 ; 0x6       (0110, TYPE=0110)
                                                 ; 0x00      (Segmentation Base Address, 16-23)
-
-    ; Segmentation information:
-    ;     SegBaseAddr: 0x00000000
-    ;     SegLim: 0x07A00, G=0
-    ;     32BitOperands (D/B=1)
-    ;     32BitMode (L=0)
-    ;     SegPresent (P=1)
-    ;     DPL=0
-    ;     UserSeg (S=1)
-    ;     TYPE=-EW- (Segmentation Grow Downwards)
 
     ; # 4
     mov dword       [es:bx+32],    0x9FFF0016   ; 0x9FFF    (Segmentation Base Address 0-15)
@@ -205,10 +185,18 @@ _entry_point:
     mov word        [es:bx+42],     0x0000      ; Base Low = 0x0000
     mov byte        [es:bx+44],     0x00        ; Base Mid = 0x00
     mov byte        [es:bx+45],     0x98        ; Access Byte = 0x98
-    mov byte        [es:bx+46],     0xCF        ; Granularity = 0x4F
+    mov byte        [es:bx+46],     0xCF        ; Granularity = 0xCF
     mov byte        [es:bx+47],     0x00        ; Base High = 0x00
 
-    mov word        [gdt_boundary], 47          ; boundary = size - 1
+    ; # 6
+    mov word        [es:bx+48],     0xFFFF      ; Limit Low = 0xFFFF
+    mov word        [es:bx+50],     0x0000      ; Base Low = 0x0000
+    mov byte        [es:bx+52],     0x00        ; Base Mid = 0x00
+    mov byte        [es:bx+53],     0x92        ; Access Byte = 0x92
+    mov byte        [es:bx+54],     0xCF        ; Granularity = 0xCF
+    mov byte        [es:bx+55],     0x00        ; Base High = 0x00
+
+    mov word        [gdt_boundary], 7*8-1       ; boundary = size - 1
 
     lgdt            [gdt48]
 
@@ -230,10 +218,10 @@ _entry_point:
 [bits 32]
 _start:
 
-    mov             cx,                     0000000000010_0_00B     ; 2, third selector
+    mov             cx,                     0000000000110_0_00B
     mov             ds,                     cx
 
-    mov             cx,                     0000000000011_0_00B     ; 3, forth selector
+    mov             cx,                     0000000000011_0_00B
     mov             ss,                     cx
 
     mov             cx,                     0000000000100_0_00B
